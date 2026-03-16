@@ -220,7 +220,8 @@ dialog::backdrop{background:rgba(0,0,0,0.25)}
 // 3. We call the Google Calendar REST API directly with their access token
 // 4. No backend needed — fully client-side
 
-const GCAL_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // Replace with your OAuth client ID from console.cloud.google.com
+const GCAL_CLIENT_ID = '842259610603-hvebdscb77no05rc3gg8h70s4ljbqp8i.apps.googleusercontent.com';
+const GCAL_API_KEY = 'AIzaSyBY_Qe-SxW9YxTZSwTGrolmqqJjJDThpg4';
 const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
 
 let gcalToken = null;
@@ -303,7 +304,7 @@ async function doCreateCalendarEvent(){
     reminders:{useDefault:false,overrides:[{method:'popup',minutes:10},{method:'popup',minutes:0}]}
   };
   try{
-    const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
+    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${GCAL_API_KEY}`,{
       method:'POST',
       headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
       body:JSON.stringify(event)
