@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Tracker — LegalVision</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a1a;min-height:100vh}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{background:#fff;border-right:1px solid #e8e8e4;padding:20px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo{font-size:11px;font-weight:700;letter-spacing:1.2px;color:#bbb;text-transform:uppercase;padding:0 10px;margin-bottom:6px}
+.logo span{display:block;font-size:15px;font-weight:600;color:#1a1a1a;letter-spacing:0;margin-top:2px}
+.nav-section{font-size:10px;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:0.6px;padding:14px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#555;border:none;background:transparent;font-family:inherit;width:100%;text-align:left;transition:background 0.1s;position:relative}
+.nav-item:hover{background:#f5f5f2}
+.nav-item.active{background:#f0f0f8;color:#534AB7;font-weight:600}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;background:#e8e8e4;color:#888}
+.nav-item.active .nav-badge{background:#d8d8f0;color:#534AB7}
+.nav-prog{margin-left:auto;font-size:11px;color:#bbb;font-weight:500}
+.checklist-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;color:#185FA5;background:#f0f7ff;border:none;cursor:pointer;font-family:inherit;width:100%;text-align:left;margin-top:2px}
+.checklist-link:hover{background:#e0f0ff}
+.sidebar-divider{height:1px;background:#f0f0ec;margin:8px 0}
+
+/* ── Main ── */
+.main{padding:28px 32px;max-width:860px}
+
+/* ── Date header ── */
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:22px;font-weight:600;margin-bottom:2px}
+.page-header p{font-size:14px;color:#888}
+.view-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid #e8e8e4;padding-bottom:0}
+.view-tab{font-size:13px;font-weight:500;padding:8px 16px;border:none;background:transparent;cursor:pointer;color:#888;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.1s}
+.view-tab.active{color:#534AB7;border-bottom-color:#534AB7;font-weight:600}
+.view-tab:hover:not(.active){color:#444}
+
+/* ── Summary row ── */
+.summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;padding:14px 16px}
+.stat-label{font-size:11px;color:#aaa;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600}
+.stat-val{font-size:22px;font-weight:600;color:#1a1a1a}
+.stat-sub{font-size:12px;color:#bbb;margin-top:2px}
+.mini-bar{background:#eee;border-radius:99px;height:4px;margin-top:8px;overflow:hidden}
+.mini-fill{height:100%;border-radius:99px;transition:width 0.4s}
+
+/* ── Section header ── */
+.section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;margin-top:20px}
+.section-hdr:first-of-type{margin-top:0}
+.section-hdr h3{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#888}
+.section-hdr .count{font-size:12px;color:#bbb}
+.section-hdr .toggle-done{font-size:12px;color:#aaa;margin-left:auto;cursor:pointer;background:none;border:none;font-family:inherit;padding:2px 8px;border-radius:4px}
+.section-hdr .toggle-done:hover{background:#f0f0ec;color:#666}
+
+/* ── Task card ── */
+.task-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;margin-bottom:8px;overflow:hidden;transition:box-shadow 0.15s}
+.task-card:hover{box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+.task-card.done-card{opacity:0.55}
+.task-card.overdue .task-top{border-left:3px solid #e24b4a}
+.task-card.due-today .task-top{border-left:3px solid #BA7517}
+.task-card.upcoming .task-top{border-left:3px solid #e8e8e4}
+
+.task-top{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;cursor:pointer}
+.task-cb{margin-top:1px;width:16px;height:16px;accent-color:#1D9E75;cursor:pointer;flex-shrink:0}
+.task-body{flex:1;min-width:0}
+.task-title{font-size:14px;font-weight:500;line-height:1.4;color:#1a1a1a}
+.task-title.done{color:#bbb;text-decoration:line-through;font-weight:400}
+.task-meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.cat-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px}
+.due-pill{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500}
+.due-overdue{background:#FCEBEB;color:#A32D2D}
+.due-today{background:#FAEEDA;color:#854F0B}
+.due-soon{background:#E6F1FB;color:#185FA5}
+.due-future{background:#f5f5f2;color:#888}
+.reminder-pill{font-size:11px;padding:2px 7px;border-radius:4px;background:#f0f0f8;color:#534AB7;display:flex;align-items:center;gap:3px}
+.reminder-pill.set{background:#E1F5EE;color:#0F6E56}
+.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.icon-btn{font-size:12px;padding:3px 8px;border-radius:5px;border:1px solid #e8e8e4;background:#fff;cursor:pointer;color:#888;font-family:inherit;white-space:nowrap;transition:all 0.1s}
+.icon-btn:hover{background:#f5f5f2;color:#444;border-color:#ccc}
+.icon-btn.primary{border-color:#c8c5f0;background:#f0f0f8;color:#534AB7}
+.icon-btn.primary:hover{background:#e8e8f8}
+
+/* ── Expanded next steps ── */
+.task-steps{display:none;border-top:1px solid #f0f0ec;padding:14px 16px 14px 44px;background:#fafaf8}
+.task-steps.open{display:block}
+.steps-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#aaa;margin-bottom:10px}
+.step-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0ec}
+.step-item:last-child{border-bottom:none}
+.step-num{font-size:11px;font-weight:700;color:#bbb;min-width:18px;margin-top:1px}
+.step-text{font-size:13px;color:#555;line-height:1.4}
+.step-link{font-size:12px;color:#185FA5;margin-top:4px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;text-decoration:underline}
+.step-link:hover{color:#0F6E56}
+
+/* ── Add task panel ── */
+.add-panel{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:18px;margin-bottom:20px}
+.add-panel-title{font-size:13px;font-weight:600;color:#555;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.add-grid{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:end}
+.add-grid-full{display:grid;grid-template-columns:1fr;gap:8px}
+.field-group{display:flex;flex-direction:column;gap:4px}
+.field-label{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.3px}
+.field-input{font-size:13px;padding:8px 12px;border:1px solid #e8e8e4;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;outline:none;transition:border-color 0.1s}
+.field-input:focus{border-color:#9990e0}
+.field-input.wide{width:100%}
+.add-row2{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.add-submit{font-size:13px;padding:8px 18px;border-radius:8px;border:1px solid #9990e0;background:#534AB7;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.1s}
+.add-submit:hover{background:#443a9a}
+.smart-hint{display:none;font-size:12px;color:#534AB7;margin-top:6px;display:flex;align-items:center;gap:5px}
+.smart-hint.show{display:flex}
+.spinner{width:10px;height:10px;border:1.5px solid #d0d0f0;border-top-color:#534AB7;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Done section ── */
+.done-section{margin-top:8px}
+.done-hidden .done-section{display:none}
+
+/* ── Backlog board ── */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:24px}
+.col-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;overflow:hidden}
+.col-head{padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f0f0ec;background:#fafaf8}
+.col-head-title{font-size:13px;font-weight:600}
+.col-count-badge{font-size:11px;color:#aaa;margin-left:auto}
+.col-body{padding:8px;display:flex;flex-direction:column;gap:6px;min-height:60px}
+.bl-card{background:#f9f9f7;border:1px solid #eee;border-radius:7px;padding:10px 12px}
+.bl-name{font-size:13px;font-weight:500;color:#1a1a1a;line-height:1.4}
+.bl-meta{display:flex;align-items:center;gap:5px;margin-top:5px;flex-wrap:wrap}
+.bl-actions{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.bl-btn{font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid #e0e0de;background:#fff;cursor:pointer;color:#666;font-family:inherit}
+.bl-btn:hover{background:#f0f0f8;color:#534AB7;border-color:#c8c5f0}
+.bl-btn.green{color:#0F6E56;border-color:#9FE1CB}
+.bl-btn.green:hover{background:#E1F5EE}
+.bl-btn.red{color:#A32D2D;border-color:#f09595}
+.bl-btn.red:hover{background:#FCEBEB}
+.empty-col{font-size:12px;color:#ccc;text-align:center;padding:14px 0;font-style:italic}
+
+/* ── Reminder modal ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:200;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:14px;padding:26px;width:400px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.15)}
+.modal-title{font-size:17px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:13px;color:#888;margin-bottom:20px}
+.modal-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.modal-field label{font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.3px}
+.modal-field input,.modal-field select,.modal-field textarea{font-size:13px;padding:9px 12px;border:1px solid #e0e0de;border-radius:8px;font-family:inherit;outline:none;color:#1a1a1a}
+.modal-field input:focus,.modal-field textarea:focus{border-color:#9990e0}
+.modal-field textarea{resize:vertical;min-height:60px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.modal-cancel{font-size:13px;padding:8px 16px;border-radius:8px;border:1px solid #e0e0de;background:#fff;cursor:pointer;color:#666;font-family:inherit}
+.modal-save{font-size:13px;padding:8px 18px;border-radius:8px;border:none;background:#534AB7;color:#fff;font-weight:600;cursor:pointer;font-family:inherit}
+.modal-save:hover{background:#443a9a}
+.modal-save:disabled{opacity:0.5;cursor:not-allowed}
+.modal-status{font-size:12px;color:#0F6E56;margin-top:8px;text-align:center;min-height:16px}
+
+/* ── Category colours ── */
+.cat-content{background:#E1F5EE;color:#0F6E56}
+.cat-social{background:#FAEEDA;color:#854F0B}
+.cat-webinar{background:#EEF4FB;color:#185FA5}
+.cat-ads{background:#F3E8FF;color:#6B21A8}
+.cat-adhoc{background:#F1EFE8;color:#5F5E5A}
+
+.panel{display:none}
+.panel.active{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="logo">LegalVision<span>Task Tracker</span></div>
+
+  <div class="nav-section">Views</div>
+  <button class="nav-item active" id="nav-today" onclick="showView('today')">
+    <div class="nav-dot" style="background:#1D9E75"></div> Today
+    <span class="nav-badge" id="nb-today">0</span>
+  </button>
+  <button class="nav-item" id="nav-upcoming" onclick="showView('upcoming')">
+    <div class="nav-dot" style="background:#185FA5"></div> Upcoming
+    <span class="nav-badge" id="nb-upcoming">0</span>
+  </button>
+  <button class="nav-item" id="nav-backlog" onclick="showView('backlog')">
+    <div class="nav-dot" style="background:#534AB7"></div> Backlog
+    <span class="nav-badge" id="nb-backlog">0</span>
+  </button>
+  <button class="nav-item" id="nav-all" onclick="showView('all')">
+    <div class="nav-dot" style="background:#aaa"></div> All tasks
+  </button>
+
+  <div class="sidebar-divider"></div>
+  <div class="nav-section">Checklists</div>
+  <button class="checklist-link" onclick="openCL('ops')">
+    <div class="nav-dot" style="background:#534AB7"></div> Webinar dashboard
+    <span class="nav-prog" id="prog-ops">—</span>
+  </button>
+
+  <div class="sidebar-divider"></div>
+  <div class="nav-section">Filter by category</div>
+  <button class="nav-item" id="nav-fc-content" onclick="setFilter('content')"><div class="nav-dot" style="background:#1D9E75"></div>Content editing</button>
+  <button class="nav-item" id="nav-fc-social" onclick="setFilter('social')"><div class="nav-dot" style="background:#BA7517"></div>Social media</button>
+  <button class="nav-item" id="nav-fc-webinar" onclick="setFilter('webinar')"><div class="nav-dot" style="background:#185FA5"></div>Webinar</button>
+  <button class="nav-item" id="nav-fc-ads" onclick="setFilter('ads')"><div class="nav-dot" style="background:#6B21A8"></div>External ads</button>
+  <button class="nav-item" id="nav-fc-adhoc" onclick="setFilter('adhoc')"><div class="nav-dot" style="background:#888"></div>Ad hoc</button>
+  <button class="nav-item" style="margin-top:4px" onclick="setFilter(null)"><div class="nav-dot" style="background:#ccc"></div>Clear filter</button>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+  <!-- TODAY -->
+  <div class="panel active" id="panel-today">
+    <div class="page-header">
+      <h1 id="today-h">Monday</h1>
+      <p id="today-d" style="color:#888;font-size:14px"></p>
+    </div>
+    <div class="summary-row" id="today-stats"></div>
+    <div id="today-add"></div>
+    <div id="today-list"></div>
+  </div>
+
+  <!-- UPCOMING -->
+  <div class="panel" id="panel-upcoming">
+    <div class="page-header">
+      <h1>Upcoming tasks</h1>
+      <p style="color:#888;font-size:14px">Everything scheduled for the next 4 weeks</p>
+    </div>
+    <div id="upcoming-add"></div>
+    <div id="upcoming-list"></div>
+  </div>
+
+  <!-- BACKLOG -->
+  <div class="panel" id="panel-backlog">
+    <div class="page-header">
+      <h1>Backlog board</h1>
+      <p style="color:#888;font-size:14px">Persistent tasks — move between columns as work progresses</p>
+    </div>
+    <div class="summary-row" id="backlog-stats"></div>
+    <div id="backlog-add"></div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <!-- ALL -->
+  <div class="panel" id="panel-all">
+    <div class="page-header">
+      <h1>All tasks</h1>
+      <p style="color:#888;font-size:14px">Every task across all views</p>
+    </div>
+    <div id="all-list"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ WEBINAR PICKER MODAL ═══ -->
+<div class="overlay" id="webinar-picker-overlay" style="display:none">
+  <div class="modal" style="width:360px">
+    <div class="modal-title">Link to a webinar</div>
+    <div class="modal-sub">Which webinar does this task belong to? It will open directly in the dashboard.</div>
+    <div id="webinar-picker-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:240px;overflow-y:auto"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeWebinarPicker(true)">Skip — no webinar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REMINDER MODAL ═══ -->
+<div class="overlay" id="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">Set a reminder</div>
+    <div class="modal-sub">Creates a Google Calendar event that pops up on your phone and desktop.</div>
+    <div class="modal-field"><label>Task</label><input type="text" id="m-task" readonly style="background:#f9f9f7;color:#666"></div>
+    <div class="modal-field"><label>Date</label><input type="date" id="m-date"></div>
+    <div class="modal-field"><label>Time</label><input type="time" id="m-time"></div>
+    <div class="modal-field"><label>Note (optional)</label><textarea id="m-note" placeholder="e.g. Check Jira ticket first, confirm speaker availability"></textarea></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" id="m-save" onclick="createCalendarReminder()">Create calendar reminder</button>
+    </div>
+    <div class="modal-status" id="m-status"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CAT={
+  content:{label:'Content editing',color:'cat-content',dot:'#1D9E75'},
+  social:{label:'Social media',color:'cat-social',dot:'#BA7517'},
+  webinar:{label:'Webinar',color:'cat-webinar',dot:'#185FA5'},
+  ads:{label:'External ads',color:'cat-ads',dot:'#6B21A8'},
+  adhoc:{label:'Ad hoc',color:'cat-adhoc',dot:'#888'}
+};
+const COL_ORDER=['todo','inprogress','review','done'];
+const COL_LABELS={todo:'To do',inprogress:'In progress',review:'In review',done:'Done'};
+const COL_COLORS={todo:'#888',inprogress:'#185FA5',review:'#BA7517',done:'#1D9E75'};
+
+// Next steps per category
+const NEXT_STEPS={
+  content:[
+    {s:'Open the article URL and read through fully before editing'},
+    {s:'Run the "Edits an article into LV style" AI prompt to restructure'},
+    {s:'Add In Short + Tips using the AI prompt — attach article URL'},
+    {s:'Write 2 FAQs sourced from legalvision.com.au only'},
+    {s:'Do a final proofread — check UK/AU spelling, active voice, no legalese'},
+    {s:'Publish on WordPress — confirm formatting, tags, and category are correct'},
+  ],
+  social:[
+    {s:'Copy article URL and open the relevant AI prompt from the prompt library'},
+    {s:'Run LinkedIn Post: Article (Marketing) prompt — paste URL into the prompt'},
+    {s:'Run Create a Facebook Post: Article (Buffer) prompt for Facebook version'},
+    {s:'Check jurisdiction tag (AU/NZ/UK) is correct in the post'},
+    {s:'Schedule in Buffer — confirm correct channel and posting time'},
+  ],
+  webinar:[
+    {s:'Open the Webinar Dashboard to see the full ops + slides checklist for this webinar', link:'webinar'},
+    {s:'Check the "Next task" panel in the dashboard — it tells you exactly what to do next'},
+    {s:'Ops stream: Zoom Events setup → Marketo → Landing pages → UTMs → LV Events page'},
+    {s:'Slides stream: Talking points PDF → Gamma → Google Slides → Mandatory slides → Send to Emily'},
+    {s:'Practice run: duplicate live event → rename to PRACTICE RUN → set time → publish'},
+    {s:'Post-webinar: download recording → YouTube upload → Spotify (200+ reg only)'},
+  ],
+  ads:[
+    {s:'Review the marketing brief and confirm advertorial brief with partner'},
+    {s:'Run the Paid Advertorial for Webinar AI prompt with webinar details'},
+    {s:'For LinkedIn paid ads: run LinkedIn Paid Advertising prompt — produce 3 versions'},
+    {s:'Submit copy for partner/agency review and confirm placement dates'},
+    {s:'Track UTM performance post-launch in analytics'},
+  ],
+  adhoc:[
+    {s:'Review the task details and identify any dependencies'},
+    {s:'Complete the task and note any follow-up actions needed'},
+    {s:'Update relevant tickets or docs once done'},
+  ]
+};
+
+const todayStr=()=>{const d=new Date();return d.toISOString().split('T')[0];};
+const fmtDate=s=>{if(!s)return'';const[y,m,d]=s.split('-');return d+' '+MONTHS[parseInt(m)-1]+' '+y;};
+const daysDiff=s=>{if(!s)return null;const t=new Date(todayStr()),dt=new Date(s);return Math.round((dt-t)/(1000*60*60*24));};
+
+function dueLabel(s){
+  const d=daysDiff(s);
+  if(d===null)return null;
+  if(d<0)return{text:'Overdue by '+Math.abs(d)+'d',cls:'due-overdue',urgency:'overdue'};
+  if(d===0)return{text:'Due today',cls:'due-today',urgency:'today'};
+  if(d<=3)return{text:'Due in '+d+'d',cls:'due-soon',urgency:'soon'};
+  return{text:'Due '+fmtDate(s),cls:'due-future',urgency:'future'};
+}
+
+// Default tasks
+const DEF_TASKS=[
+  {id:'t1',name:'Edit and publish article on WordPress',cat:'content',dueDate:todayStr(),done:false,source:'today',reminder:null},
+  {id:'t2',name:'Write Article In Short + Tips for Business',cat:'content',dueDate:todayStr(),done:false,source:'today',reminder:null},
+  {id:'t3',name:'Write Article FAQs (2 per article)',cat:'content',dueDate:todayStr(),done:false,source:'today',reminder:null},
+  {id:'t4',name:'Create LinkedIn post for article',cat:'social',dueDate:todayStr(),done:false,source:'today',reminder:null},
+  {id:'t5',name:'Schedule social posts in Buffer (AU/NZ/UK)',cat:'social',dueDate:todayStr(),done:false,source:'today',reminder:null},
+  {id:'t6',name:'Set up Zoom Event for upcoming webinar',cat:'webinar',dueDate:todayStr(),done:false,source:'today',reminder:null},
+  {id:'t7',name:'Create webinar slides in Gamma + Google Slides',cat:'webinar',dueDate:todayStr(),done:false,source:'today',reminder:null},
+  {id:'t8',name:'Coordinate external advertorial placement',cat:'ads',dueDate:todayStr(),done:false,source:'today',reminder:null},
+];
+const DEF_BACKLOG=[
+  {id:'b1',name:'Write post-webinar key takeaways email',cat:'webinar',col:'todo'},
+  {id:'b2',name:'Create webinar battle cards for sales team',cat:'webinar',col:'todo'},
+  {id:'b3',name:'Publish webinar transcript as article',cat:'content',col:'todo'},
+  {id:'b4',name:'Write newsletter article summaries (x4)',cat:'social',col:'todo'},
+  {id:'b5',name:'Create LinkedIn post-event carousel',cat:'social',col:'todo'},
+  {id:'b6',name:'Upload recording to YouTube',cat:'webinar',col:'todo'},
+  {id:'b7',name:'Upload recording to Spotify (200+ reg only)',cat:'webinar',col:'todo'},
+  {id:'b8',name:'Create membership case study draft',cat:'content',col:'todo'},
+  {id:'b9',name:'Set up practice run in Zoom Events',cat:'webinar',col:'todo'},
+  {id:'b10',name:'Create UTMs for upcoming webinar',cat:'webinar',col:'todo'},
+];
+
+let tasks=JSON.parse(localStorage.getItem('lv_tasks_v1')||'null')||DEF_TASKS.map(t=>({...t}));
+let backlog=JSON.parse(localStorage.getItem('lv_backlog_v1')||'null')||DEF_BACKLOG.map(t=>({...t}));
+let activeView='today';
+let activeFilter=null;
+let showDone=false;
+let expandedTask=null;
+let modalTaskId=null;
+let typingTimer=null;
+
+function save(){
+  localStorage.setItem('lv_tasks_v1',JSON.stringify(tasks));
+  localStorage.setItem('lv_backlog_v1',JSON.stringify(backlog));
+  updateSidebarBadges();
+  updateChecklistProgress();
+}
+
+// ═══════════════════════════════════════════════════════
+// ROUTING
+// ═══════════════════════════════════════════════════════
+function showView(v){
+  activeView=v;activeFilter=null;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+v).classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  renderAll();
+}
+function setFilter(f){
+  activeFilter=f;
+  document.querySelectorAll('[id^="nav-fc-"]').forEach(b=>b.classList.remove('active'));
+  if(f)document.getElementById('nav-fc-'+f)?.classList.add('active');
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER ENGINE
+// ═══════════════════════════════════════════════════════
+function renderAll(){
+  renderToday();renderUpcoming();renderBacklog();renderAll2();
+  updateSidebarBadges();updateChecklistProgress();
+}
+
+function filterTasks(list){
+  return activeFilter?list.filter(t=>t.cat===activeFilter):list;
+}
+
+function renderToday(){
+  const now=new Date();
+  document.getElementById('today-h').textContent=DAYS[now.getDay()]+'\'s checklist';
+  document.getElementById('today-d').textContent=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+
+  const td=todayStr();
+  let todayTasks=filterTasks(tasks.filter(t=>t.source==='today'||(t.dueDate&&t.dueDate<=td&&!t.done)||(t.dueDate===td)));
+  // dedupe
+  const seen=new Set();todayTasks=todayTasks.filter(t=>{if(seen.has(t.id))return false;seen.add(t.id);return true;});
+
+  const pending=todayTasks.filter(t=>!t.done);
+  const done=todayTasks.filter(t=>t.done);
+  const pct=todayTasks.length?Math.round(done.length/todayTasks.length*100):0;
+
+  document.getElementById('today-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Today</div><div class="stat-val">${pending.length}</div><div class="stat-sub">tasks remaining</div><div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:#1D9E75"></div></div></div>
+    <div class="stat-card"><div class="stat-label">Done</div><div class="stat-val">${done.length}</div><div class="stat-sub">${pct}% complete</div></div>
+    <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-val" style="color:${tasks.filter(t=>!t.done&&t.dueDate&&daysDiff(t.dueDate)<0).length>0?'#A32D2D':'#1a1a1a'}">${tasks.filter(t=>!t.done&&t.dueDate&&daysDiff(t.dueDate)<0).length}</div><div class="stat-sub">need attention</div></div>
+    <div class="stat-card"><div class="stat-label">Reminders</div><div class="stat-val">${tasks.filter(t=>t.reminder).length}</div><div class="stat-sub">in Calendar</div></div>
+  `;
+
+  document.getElementById('today-add').innerHTML=renderAddPanel('today');
+  attachAddListeners('today');
+
+  let html='';
+  if(pending.length===0&&done.length===0){
+    html='<div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px">All clear — no tasks for today. Add one above.</div>';
+  } else {
+    if(pending.length>0){
+      html+=`<div class="section-hdr"><h3>To do</h3><span class="count">${pending.length} tasks</span></div>`;
+      pending.forEach(t=>{html+=renderTaskCard(t);});
+    }
+    if(done.length>0){
+      html+=`<div class="section-hdr" style="margin-top:20px"><h3>Completed</h3><span class="count">${done.length} tasks</span>
+        <button class="toggle-done" onclick="toggleDoneVisible()">${showDone?'Hide':'Show'}</button>
+      </div>`;
+      if(showDone){done.forEach(t=>{html+=renderTaskCard(t);});}
+    }
+  }
+  document.getElementById('today-list').innerHTML=html;
+  attachTaskListeners();
+}
+
+function renderUpcoming(){
+  const td=todayStr();
+  let upcoming=filterTasks(tasks.filter(t=>!t.done&&t.dueDate&&t.dueDate>td));
+  upcoming.sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
+
+  document.getElementById('upcoming-add').innerHTML=renderAddPanel('upcoming');
+  attachAddListeners('upcoming');
+
+  if(upcoming.length===0){
+    document.getElementById('upcoming-list').innerHTML='<div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px">No upcoming tasks. Add one above with a future due date.</div>';
+    return;
+  }
+
+  // Group by week
+  const groups={};
+  upcoming.forEach(t=>{
+    const d=daysDiff(t.dueDate);
+    const wk=d<=7?'This week':d<=14?'Next week':d<=21?'In 2–3 weeks':'In 3–4 weeks';
+    if(!groups[wk])groups[wk]=[];
+    groups[wk].push(t);
+  });
+
+  let html='';
+  Object.entries(groups).forEach(([label,grpTasks])=>{
+    html+=`<div class="section-hdr"><h3>${label}</h3><span class="count">${grpTasks.length} tasks</span></div>`;
+    grpTasks.forEach(t=>{html+=renderTaskCard(t);});
+  });
+  document.getElementById('upcoming-list').innerHTML=html;
+  attachTaskListeners();
+}
+
+function renderBacklog(){
+  const bl=activeFilter?backlog.filter(t=>t.cat===activeFilter):backlog;
+  const done=bl.filter(t=>t.col==='done').length;
+  const pct=bl.length?Math.round(done/bl.length*100):0;
+  document.getElementById('backlog-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val">${bl.length}</div><div class="stat-sub">${bl.filter(t=>t.col==='todo').length} to do</div></div>
+    <div class="stat-card"><div class="stat-label">In progress</div><div class="stat-val">${bl.filter(t=>t.col==='inprogress').length}</div><div class="stat-sub">active now</div></div>
+    <div class="stat-card"><div class="stat-label">In review</div><div class="stat-val">${bl.filter(t=>t.col==='review').length}</div><div class="stat-sub">waiting on others</div></div>
+    <div class="stat-card"><div class="stat-label">Done</div><div class="stat-val">${done}</div><div class="stat-sub">${pct}% complete</div><div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:#1D9E75"></div></div></div>
+  `;
+
+  document.getElementById('backlog-add').innerHTML=renderBacklogAddPanel();
+  document.getElementById('backlog-add').querySelector('form')?.addEventListener('submit',e=>{e.preventDefault();addBacklogTask();});
+  document.getElementById('backlog-add').querySelector('#bl-submit')?.addEventListener('click',addBacklogTask);
+
+  const board=document.getElementById('board');board.innerHTML='';
+  COL_ORDER.forEach(col=>{
+    const colTasks=bl.filter(t=>t.col===col);
+    const others=COL_ORDER.filter(c=>c!==col);
+    const div=document.createElement('div');div.className='col-card';
+    div.innerHTML=`
+      <div class="col-head"><div class="nav-dot" style="background:${COL_COLORS[col]}"></div><div class="col-head-title">${COL_LABELS[col]}</div><div class="col-count-badge">${colTasks.length}</div></div>
+      <div class="col-body">
+        ${colTasks.length===0?'<div class="empty-col">Nothing here</div>':colTasks.map(t=>`
+          <div class="bl-card">
+            <div class="bl-name">${t.name}</div>
+            <div class="bl-meta"><span class="cat-pill ${CAT[t.cat]?.color||'cat-adhoc'}" style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px">${CAT[t.cat]?.label||'Ad hoc'}</span>${t.cat==='webinar'?`<button style="font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid #B5D4F4;background:#f0f7ff;color:#185FA5;cursor:pointer;font-family:inherit" onclick="openCL('webinar'${t.webinarId?`,'${t.webinarId}'`:''})">Open dashboard →</button>`:''}</div>
+            <div class="bl-actions">
+              ${others.map(o=>`<button class="bl-btn" onclick="moveBacklog('${t.id}','${o}')">${COL_LABELS[o]}</button>`).join('')}
+              <button class="bl-btn green" onclick="blToToday('${t.id}')">+ Today</button>
+              <button class="bl-btn red" onclick="deleteBacklog('${t.id}')">Remove</button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    board.appendChild(div);
+  });
+}
+
+function renderAll2(){
+  const all=filterTasks([...tasks].sort((a,b)=>(a.dueDate||'9999').localeCompare(b.dueDate||'9999')));
+  const pending=all.filter(t=>!t.done);
+  const done=all.filter(t=>t.done);
+  let html='';
+  if(pending.length){
+    html+='<div class="section-hdr"><h3>Active</h3><span class="count">'+pending.length+' tasks</span></div>';
+    pending.forEach(t=>{html+=renderTaskCard(t);});
+  }
+  if(done.length){
+    html+='<div class="section-hdr" style="margin-top:20px"><h3>Completed</h3><span class="count">'+done.length+' tasks</span></div>';
+    done.forEach(t=>{html+=renderTaskCard(t);});
+  }
+  document.getElementById('all-list').innerHTML=html||'<div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px">No tasks yet.</div>';
+  attachTaskListeners();
+}
+
+// ═══════════════════════════════════════════════════════
+// TASK CARD
+// ═══════════════════════════════════════════════════════
+function renderTaskCard(t){
+  const dl=dueLabel(t.dueDate);
+  const urgency=dl?.urgency||'future';
+  const steps=NEXT_STEPS[t.cat]||NEXT_STEPS.adhoc;
+  const isExpanded=expandedTask===t.id;
+  const catInfo=CAT[t.cat]||{label:'Ad hoc',color:'cat-adhoc'};
+
+  // Look up linked webinar name
+  let webinarName='';
+  if(t.cat==='webinar'&&t.webinarId){
+    try{
+      const wbs=JSON.parse(localStorage.getItem('lv_webinar_dash_v1')||'[]');
+      const wb=wbs.find(w=>w.id===t.webinarId);
+      if(wb)webinarName=wb.name;
+    }catch(e){}
+  }
+  const openCmd=t.cat==='webinar'&&t.webinarId
+    ?`openCL('webinar','${t.webinarId}')`
+    :`openCL('webinar')`;
+
+  return `
+  <div class="task-card ${t.done?'done-card':''} ${!t.done&&urgency==='overdue'?'overdue':''} ${!t.done&&urgency==='today'?'due-today':'upcoming'}" id="card-${t.id}">
+    <div class="task-top">
+      <input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleDone('${t.id}')" onclick="event.stopPropagation()">
+      <div class="task-body" onclick="toggleExpand('${t.id}')">
+        <div class="task-title ${t.done?'done':''}">${t.name}</div>
+        <div class="task-meta">
+          <span class="cat-pill ${catInfo.color}">${catInfo.label}</span>
+          ${dl?`<span class="due-pill ${dl.cls}">${dl.text}</span>`:''}
+          ${webinarName?`<span class="due-pill" style="background:#EEF4FB;color:#185FA5;border:1px solid #B5D4F4;cursor:pointer" onclick="event.stopPropagation();${openCmd}">📋 ${webinarName}</span>`:''}
+          ${t.cat==='webinar'&&!t.webinarId?`<span class="due-pill due-future" style="cursor:pointer;border:1px dashed #ccc" onclick="event.stopPropagation();openWebinarPicker('${t.id}')">+ Link to webinar</span>`:''}
+          ${t.reminder?`<span class="reminder-pill set">⏰ ${t.reminder.time} ${t.reminder.date!==todayStr()?fmtDate(t.reminder.date):''}</span>`:''}
+        </div>
+      </div>
+      <div class="task-right">
+        <button class="icon-btn primary" onclick="event.stopPropagation();openModal('${t.id}')">⏰ Remind</button>
+        <button class="icon-btn" onclick="event.stopPropagation();removeTask('${t.id}')">Remove</button>
+      </div>
+    </div>
+    <div class="task-steps ${isExpanded?'open':''}" id="steps-${t.id}">
+      <div class="steps-title">Next steps</div>
+      ${steps.map((s,i)=>`
+        <div class="step-item">
+          <div class="step-num">${i+1}</div>
+          <div>
+            <div class="step-text">${s.s}</div>
+            ${s.link?`<button class="step-link" onclick="${openCmd}">Open Webinar Dashboard →</button>`:''}
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function toggleExpand(id){
+  expandedTask=expandedTask===id?null:id;
+  renderAll();
+}
+function toggleDone(id){
+  const t=tasks.find(t=>t.id===id);
+  if(t){t.done=!t.done;save();renderAll();}
+}
+function removeTask(id){
+  tasks=tasks.filter(t=>t.id!==id);save();renderAll();
+}
+function toggleDoneVisible(){
+  showDone=!showDone;renderToday();
+}
+
+function attachTaskListeners(){}
+
+// ═══════════════════════════════════════════════════════
+// ADD TASK PANELS
+// ═══════════════════════════════════════════════════════
+function renderAddPanel(src){
+  const isFuture=src==='upcoming';
+  return `
+  <div class="add-panel">
+    <div class="add-panel-title">✦ Add a task ${isFuture?'— Claude will suggest the category':'— type to auto-detect category'}</div>
+    <div class="field-group" style="margin-bottom:10px">
+      <label class="field-label">Task name</label>
+      <input class="field-input wide" type="text" id="add-name-${src}" placeholder="${isFuture?'e.g. Prepare webinar slides for 15 April event...':'e.g. Review aged care article before publishing...'}" oninput="onNameInput('${src}')">
+      <div id="smart-hint-${src}" class="smart-hint"></div>
+    </div>
+    <div class="add-row2">
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <select class="field-input" id="add-cat-${src}">
+          ${Object.entries(CAT).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Due date</label>
+        <input class="field-input" type="date" id="add-date-${src}" value="${isFuture?'':todayStr()}">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Reminder time</label>
+        <input class="field-input" type="time" id="add-time-${src}">
+      </div>
+      <div class="field-group" style="justify-content:flex-end">
+        <label class="field-label">&nbsp;</label>
+        <button class="add-submit" onclick="addTask('${src}')">Add task</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderBacklogAddPanel(){
+  return `
+  <div class="add-panel" style="margin-bottom:16px">
+    <div class="add-panel-title">✦ Add to backlog</div>
+    <div class="field-group" style="margin-bottom:10px">
+      <label class="field-label">Task name</label>
+      <input class="field-input wide" type="text" id="add-name-backlog" placeholder="e.g. Upload recording to YouTube..." oninput="onNameInput('backlog')">
+      <div id="smart-hint-backlog" class="smart-hint"></div>
+    </div>
+    <div class="add-row2">
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <select class="field-input" id="add-cat-backlog">${Object.entries(CAT).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}</select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Column</label>
+        <select class="field-input" id="add-col-backlog">${COL_ORDER.map(c=>`<option value="${c}">${COL_LABELS[c]}</option>`).join('')}</select>
+      </div>
+      <div class="field-group" style="justify-content:flex-end">
+        <label class="field-label">&nbsp;</label>
+        <button class="add-submit" id="bl-submit" onclick="addBacklogTask()">Add task</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function attachAddListeners(src){
+  const inp=document.getElementById('add-name-'+src);
+  if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter')addTask(src);});
+}
+
+function onNameInput(src){
+  const val=document.getElementById('add-name-'+src)?.value?.trim();
+  const hint=document.getElementById('smart-hint-'+src);
+  if(!hint)return;
+  if(!val||val.length<5){hint.innerHTML='';hint.className='smart-hint';return;}
+  clearTimeout(typingTimer);
+  hint.innerHTML=`<span class="spinner"></span> Working out category...`;
+  hint.className='smart-hint show';
+  typingTimer=setTimeout(()=>suggestCat(val,src),700);
+}
+
+async function suggestCat(text,src){
+  const hint=document.getElementById('smart-hint-'+src);
+  if(!hint)return;
+  const prompt=`You are a task classifier for a legal marketing coordinator at LegalVision.
+Classify this task into EXACTLY one key. Reply with ONLY the key:
+content — article editing, WordPress, In Short, FAQs, plain English, case studies
+social — LinkedIn, Facebook, Buffer, newsletters, carousels, social media
+webinar — anything related to webinars: Zoom Events, Marketo, UTMs, recordings, YouTube, Spotify, Jira, slides, Gamma, Google Slides, Bitly, QR codes, talking points, battle cards, practice runs, webinar setup
+ads — paid advertising, advertorials, external ads, LinkedIn paid ads, partner promotions
+adhoc — random, one-off, admin, meetings, misc
+Task: "${text}"`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:10,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const raw=(d?.content?.[0]?.text||'').trim().toLowerCase().replace(/[^a-z]/g,'');
+    const valid=Object.keys(CAT);
+    const cat=valid.includes(raw)?raw:'adhoc';
+    const sel=document.getElementById('add-cat-'+src);
+    if(sel)sel.value=cat;
+    if(hint){hint.innerHTML=`✓ Suggested: <strong>${CAT[cat].label}</strong> — change in dropdown if needed`;hint.className='smart-hint show';hint.style.color='#0F6E56';}
+  }catch(e){if(hint){hint.innerHTML='Could not auto-detect — select category manually';hint.style.color='#aaa';}}
+}
+
+function addTask(src){
+  const name=document.getElementById('add-name-'+src)?.value?.trim();
+  if(!name)return;
+  const cat=document.getElementById('add-cat-'+src)?.value||'adhoc';
+  const dueDate=document.getElementById('add-date-'+src)?.value||todayStr();
+  const time=document.getElementById('add-time-'+src)?.value||null;
+  const id='t'+Date.now();
+  const task={id,name,cat,dueDate,done:false,source:src==='today'?'today':'scheduled',reminder:null,webinarId:null};
+  tasks.push(task);
+  save();
+  if(time){task.reminder={date:dueDate,time};save();createCalReminderDirect(task);}
+  // Clear inputs
+  document.getElementById('add-name-'+src).value='';
+  if(document.getElementById('add-date-'+src)&&src!=='upcoming')document.getElementById('add-date-'+src).value=todayStr();
+  const hint=document.getElementById('smart-hint-'+src);
+  if(hint){hint.innerHTML='';hint.className='smart-hint';}
+  // If webinar category, show picker
+  if(cat==='webinar'){openWebinarPicker(id);}
+  else{renderAll();}
+}
+
+function addBacklogTask(){
+  const name=document.getElementById('add-name-backlog')?.value?.trim();
+  if(!name)return;
+  const cat=document.getElementById('add-cat-backlog')?.value||'adhoc';
+  const col=document.getElementById('add-col-backlog')?.value||'todo';
+  backlog.push({id:'b'+Date.now(),name,cat,col});
+  save();renderAll();
+}
+
+// ═══════════════════════════════════════════════════════
+// BACKLOG ACTIONS
+// ═══════════════════════════════════════════════════════
+function moveBacklog(id,col){const t=backlog.find(t=>t.id===id);if(t){t.col=col;save();renderAll();}}
+function blToToday(id){
+  const t=backlog.find(t=>t.id===id);if(!t)return;
+  tasks.push({id:'t'+Date.now(),name:t.name,cat:t.cat,dueDate:todayStr(),done:false,source:'today',reminder:null});
+  backlog=backlog.filter(x=>x.id!==id);
+  save();renderAll();
+}
+function deleteBacklog(id){backlog=backlog.filter(t=>t.id!==id);save();renderAll();}
+
+// ═══════════════════════════════════════════════════════
+// CALENDAR REMINDERS
+// ═══════════════════════════════════════════════════════
+function openModal(id){
+  const t=tasks.find(t=>t.id===id);if(!t)return;
+  modalTaskId=id;
+  document.getElementById('m-task').value=t.name;
+  document.getElementById('m-date').value=t.reminder?.date||t.dueDate||todayStr();
+  document.getElementById('m-time').value=t.reminder?.time||'09:00';
+  document.getElementById('m-note').value='';
+  document.getElementById('m-status').textContent='';
+  document.getElementById('m-save').disabled=false;
+  document.getElementById('m-save').textContent='Create calendar reminder';
+  document.getElementById('modal-overlay').style.display='flex';
+}
+function closeModal(){document.getElementById('modal-overlay').style.display='none';modalTaskId=null;}
+
+async function createCalendarReminder(){
+  const date=document.getElementById('m-date').value;
+  const time=document.getElementById('m-time').value;
+  const note=document.getElementById('m-note').value.trim();
+  if(!date||!time){document.getElementById('m-status').textContent='Please set a date and time.';return;}
+  const t=tasks.find(t=>t.id===modalTaskId);if(!t)return;
+
+  const btn=document.getElementById('m-save');
+  btn.disabled=true;btn.textContent='Creating...';
+  document.getElementById('m-status').textContent='';
+
+  const success=await createCalReminderDirect(t,date,time,note);
+  if(success){
+    t.reminder={date,time};save();
+    btn.textContent='✓ Reminder created';
+    document.getElementById('m-status').textContent='Check Google Calendar — you\'ll get a pop-up notification at the set time.';
+    renderAll();
+    setTimeout(closeModal,2200);
+  } else {
+    btn.disabled=false;btn.textContent='Create calendar reminder';
+    document.getElementById('m-status').textContent='Could not create — please try again.';
+  }
+}
+
+async function createCalReminderDirect(task,date,time,note){
+  date=date||task.reminder?.date||task.dueDate||todayStr();
+  time=time||task.reminder?.time||'09:00';
+  note=note||'';
+  const catLabel=(CAT[task.cat]||{label:'Task'}).label;
+  const steps=(NEXT_STEPS[task.cat]||NEXT_STEPS.adhoc).slice(0,3).map((s,i)=>`${i+1}. ${s.s}`).join('\n');
+  const desc=`Category: ${catLabel}\n\nFirst steps:\n${steps}${note?'\n\nNote: '+note:''}`;
+  const start=`${date}T${time}:00`;
+  const [h,m]=time.split(':').map(Number);
+  const endH=String(h+(m+30>=60?1:0)).padStart(2,'0');
+  const endM=String((m+30)%60).padStart(2,'0');
+  const end=`${date}T${endH}:${endM}:00`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:200,
+        system:`You are a Google Calendar assistant. Use the gcal_create_event tool to create a calendar event with these exact details and respond with just "created".`,
+        messages:[{role:'user',content:`Create a calendar event:
+Title: ⏰ ${task.name}
+Start: ${start} (Australia/Sydney timezone)
+End: ${end} (Australia/Sydney timezone)
+Description: ${desc}
+Reminders: popup 10 minutes before, popup at event time`}],
+        mcp_servers:[{type:'url',url:'https://gcal.mcp.claude.com/mcp',name:'gcal-mcp'}]
+      })
+    });
+    const data=await res.json();
+    return data?.content?.some(c=>c.type==='mcp_tool_use'||c.type==='text');
+  }catch(e){return false;}
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDEBAR UPDATES
+// ═══════════════════════════════════════════════════════
+function updateSidebarBadges(){
+  const td=todayStr();
+  const todayCount=tasks.filter(t=>!t.done&&(t.source==='today'||(t.dueDate&&t.dueDate<=td))).length;
+  const upCount=tasks.filter(t=>!t.done&&t.dueDate&&t.dueDate>td).length;
+  const blCount=backlog.filter(t=>t.col!=='done').length;
+  document.getElementById('nb-today').textContent=todayCount||'';
+  document.getElementById('nb-upcoming').textContent=upCount||'';
+  document.getElementById('nb-backlog').textContent=blCount||'';
+}
+
+function updateChecklistProgress(){
+  const el=document.getElementById('prog-ops');if(!el)return;
+  try{
+    const raw=localStorage.getItem('lv_ops_checklist');if(!raw){el.textContent='—';return;}
+    const state=JSON.parse(raw);const keys=Object.keys(state);
+    if(!keys.length){el.textContent='—';return;}
+    const done=keys.filter(k=>state[k]).length;
+    el.textContent=Math.round(done/keys.length*100)+'%';
+  }catch(e){el.textContent='—';}
+}
+
+// ═══════════════════════════════════════════════════════
+// WEBINAR PICKER
+// ═══════════════════════════════════════════════════════
+let pickerTaskId=null;
+
+function openWebinarPicker(taskId){
+  pickerTaskId=taskId;
+  // Read webinars from the dashboard's localStorage
+  let webinars=[];
+  try{webinars=JSON.parse(localStorage.getItem('lv_webinar_dash_v1')||'[]');}catch(e){}
+  const list=document.getElementById('webinar-picker-list');
+  if(!webinars.length){
+    list.innerHTML='<div style="font-size:13px;color:#aaa;text-align:center;padding:12px">No webinars found in dashboard yet.<br>Open the dashboard and create one first.</div>';
+  } else {
+    list.innerHTML=webinars.map(w=>`
+      <div onclick="linkWebinar('${w.id}')" style="padding:12px 14px;background:#fff;border:1px solid #e8e8e4;border-radius:10px;cursor:pointer;transition:border-color 0.1s" onmouseover="this.style.borderColor='#9990e0'" onmouseout="this.style.borderColor='#e8e8e4'">
+        <div style="font-size:14px;font-weight:600;margin-bottom:3px">${w.name}</div>
+        <div style="font-size:12px;color:#888">${w.date?w.date:''} · ${w.region} · ${w.status}</div>
+      </div>`).join('');
+  }
+  document.getElementById('webinar-picker-overlay').style.display='flex';
+  renderAll();
+}
+
+function linkWebinar(webinarId){
+  const t=tasks.find(t=>t.id===pickerTaskId);
+  if(t){t.webinarId=webinarId;save();}
+  closeWebinarPicker(false);
+}
+
+function closeWebinarPicker(skipLink){
+  document.getElementById('webinar-picker-overlay').style.display='none';
+  pickerTaskId=null;
+  renderAll();
+}
+
+function openCL(type,webinarId){
+  if(webinarId){localStorage.setItem('lv_active_webinar','{"id":"'+webinarId+'","ts":'+Date.now()+'}');}
+  window.open('webinar_dashboard.html','_blank');
+}
+
+setInterval(updateChecklistProgress,5000);
+renderAll();
+</script>
+</body>
+</html>
