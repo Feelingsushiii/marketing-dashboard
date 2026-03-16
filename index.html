@@ -3,913 +3,909 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task Tracker — LegalVision</title>
+<title>Webinar Dashboard — LegalVision</title>
 <style>
+:root{
+  --bg:#f5f5f2;--panel:#fff;--muted:#6c6f73;--text:#1b1d1f;--line:#e5e4df;
+  --soft:#f1f0ec;--green:#1D9E75;--purple:#534AB7;--blue:#185FA5;--olive:#3B6D11;
+  --orange:#BA7517;--burnt:#993C1D;--teal:#0F6E56;--danger:#b83b3b;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a1a;min-height:100vh}
-.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
 
 /* ── Sidebar ── */
-.sidebar{background:#fff;border-right:1px solid #e8e8e4;padding:20px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto}
-.logo{font-size:11px;font-weight:700;letter-spacing:1.2px;color:#bbb;text-transform:uppercase;padding:0 10px;margin-bottom:6px}
-.logo span{display:block;font-size:15px;font-weight:600;color:#1a1a1a;letter-spacing:0;margin-top:2px}
-.nav-section{font-size:10px;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:0.6px;padding:14px 10px 4px}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#555;border:none;background:transparent;font-family:inherit;width:100%;text-align:left;transition:background 0.1s;position:relative}
-.nav-item:hover{background:#f5f5f2}
-.nav-item.active{background:#f0f0f8;color:#534AB7;font-weight:600}
-.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.nav-badge{margin-left:auto;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;background:#e8e8e4;color:#888}
-.nav-item.active .nav-badge{background:#d8d8f0;color:#534AB7}
-.nav-prog{margin-left:auto;font-size:11px;color:#bbb;font-weight:500}
-.checklist-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;color:#185FA5;background:#f0f7ff;border:none;cursor:pointer;font-family:inherit;width:100%;text-align:left;margin-top:2px}
-.checklist-link:hover{background:#e0f0ff}
-.sidebar-divider{height:1px;background:#f0f0ec;margin:8px 0}
+.sidebar{background:#fbfbf9;border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand h1{font-size:18px;font-weight:700;margin-bottom:2px}
+.brand p{font-size:12px;color:var(--muted)}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--text);transition:background 0.1s}
+.btn:hover{background:var(--soft)}
+.btn-primary{background:var(--purple);color:#fff;border-color:var(--purple)}
+.btn-primary:hover{filter:brightness(0.95)}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:7px}
+.search{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit;font-size:13px;outline:none}
+.search:focus{border-color:#b0aee0}
+.webinar-list{display:flex;flex-direction:column;gap:7px;overflow-y:auto}
+.wcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s}
+.wcard:hover{border-color:#c0bde8}
+.wcard.active{border-color:var(--purple);box-shadow:0 0 0 2px rgba(83,74,183,.07)}
+.wcard-name{font-size:14px;font-weight:600;margin-bottom:5px;line-height:1.3}
+.wcard-meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.wpill{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;background:#f0eefe;color:var(--purple)}
+.wpill.green{background:#e5f6f1;color:var(--teal)}
+.wcard-bar{height:4px;background:#eceae5;border-radius:99px;overflow:hidden;margin-top:8px}
+.wcard-fill{height:100%;background:var(--green);border-radius:99px;transition:width 0.3s}
 
 /* ── Main ── */
-.main{padding:28px 32px;max-width:860px}
+.main{padding:28px 32px;min-width:0;overflow-y:auto}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;color:var(--muted);gap:12px;text-align:center}
+.empty-state h2{font-size:18px;font-weight:600;color:var(--text)}
+.empty-state p{font-size:14px;max-width:320px;line-height:1.6}
 
-/* ── Date header ── */
-.page-header{margin-bottom:24px}
-.page-header h1{font-size:22px;font-weight:600;margin-bottom:2px}
-.page-header p{font-size:14px;color:#888}
-.view-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid #e8e8e4;padding-bottom:0}
-.view-tab{font-size:13px;font-weight:500;padding:8px 16px;border:none;background:transparent;cursor:pointer;color:#888;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.1s}
-.view-tab.active{color:#534AB7;border-bottom-color:#534AB7;font-weight:600}
-.view-tab:hover:not(.active){color:#444}
+/* ── Hero ── */
+.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.hero-left h2{font-size:26px;font-weight:700;margin-bottom:4px;line-height:1.2}
+.hero-left p{font-size:13px;color:var(--muted)}
+.hero-actions{display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0}
 
-/* ── Summary row ── */
-.summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px}
-.stat-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;padding:14px 16px}
-.stat-label{font-size:11px;color:#aaa;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600}
-.stat-val{font-size:22px;font-weight:600;color:#1a1a1a}
-.stat-sub{font-size:12px;color:#bbb;margin-top:2px}
-.mini-bar{background:#eee;border-radius:99px;height:4px;margin-top:8px;overflow:hidden}
-.mini-fill{height:100%;border-radius:99px;transition:width 0.4s}
+/* ── Info grid ── */
+.info-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:14px;margin-bottom:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:12px}
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kv-item{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fcfcfa}
+.kv-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:3px}
+.kv-val{font-size:14px;font-weight:500}
+.overall-bar{margin-top:12px}
+.bar{height:8px;background:#eceae5;border-radius:99px;overflow:hidden}
+.fill{height:100%;background:var(--green);border-radius:99px;transition:width 0.3s}
+.bar-label{font-size:12px;color:var(--muted);margin-top:5px}
+.next-task-box{background:#f7f6ff;border:1px solid #e2deff;border-radius:10px;padding:14px;margin-top:2px}
+.nt-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--purple);margin-bottom:6px}
+.nt-task{font-size:14px;font-weight:600;margin-bottom:4px;line-height:1.4}
+.nt-meta{font-size:12px;color:var(--muted)}
 
-/* ── Section header ── */
-.section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;margin-top:20px}
-.section-hdr:first-of-type{margin-top:0}
-.section-hdr h3{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#888}
-.section-hdr .count{font-size:12px;color:#bbb}
-.section-hdr .toggle-done{font-size:12px;color:#aaa;margin-left:auto;cursor:pointer;background:none;border:none;font-family:inherit;padding:2px 8px;border-radius:4px}
-.section-hdr .toggle-done:hover{background:#f0f0ec;color:#666}
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.tab{padding:9px 16px;border:none;background:transparent;font:inherit;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.1s}
+.tab.active{color:var(--purple);font-weight:600;border-bottom-color:var(--purple)}
+.tab:hover:not(.active){color:var(--text)}
+.tabpanel{display:none}
+.tabpanel.active{display:block}
 
-/* ── Task card ── */
-.task-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;margin-bottom:8px;overflow:hidden;transition:box-shadow 0.15s}
-.task-card:hover{box-shadow:0 1px 6px rgba(0,0,0,0.06)}
-.task-card.done-card{opacity:0.55}
-.task-card.overdue .task-top{border-left:3px solid #e24b4a}
-.task-card.due-today .task-top{border-left:3px solid #BA7517}
-.task-card.upcoming .task-top{border-left:3px solid #e8e8e4}
+/* ── Controls ── */
+.controls{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 
-.task-top{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;cursor:pointer}
-.task-cb{margin-top:1px;width:16px;height:16px;accent-color:#1D9E75;cursor:pointer;flex-shrink:0}
-.task-body{flex:1;min-width:0}
-.task-title{font-size:14px;font-weight:500;line-height:1.4;color:#1a1a1a}
-.task-title.done{color:#bbb;text-decoration:line-through;font-weight:400}
-.task-meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
-.cat-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px}
-.due-pill{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500}
-.due-overdue{background:#FCEBEB;color:#A32D2D}
-.due-today{background:#FAEEDA;color:#854F0B}
-.due-soon{background:#E6F1FB;color:#185FA5}
-.due-future{background:#f5f5f2;color:#888}
-.reminder-pill{font-size:11px;padding:2px 7px;border-radius:4px;background:#f0f0f8;color:#534AB7;display:flex;align-items:center;gap:3px}
-.reminder-pill.set{background:#E1F5EE;color:#0F6E56}
-.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
-.icon-btn{font-size:12px;padding:3px 8px;border-radius:5px;border:1px solid #e8e8e4;background:#fff;cursor:pointer;color:#888;font-family:inherit;white-space:nowrap;transition:all 0.1s}
-.icon-btn:hover{background:#f5f5f2;color:#444;border-color:#ccc}
-.icon-btn.primary{border-color:#c8c5f0;background:#f0f0f8;color:#534AB7}
-.icon-btn.primary:hover{background:#e8e8f8}
+/* ── Phase + tasks ── */
+.phase{margin-bottom:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.phase-header{padding:12px 16px;background:#f7f6f3;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+.phase-header:hover{background:#f0efea}
+.phase-left{display:flex;gap:10px;align-items:center}
+.phase-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.phase-name{font-size:14px;font-weight:600}
+.phase-timing{font-size:12px;color:var(--muted);margin-top:2px}
+.phase-right{font-size:12px;color:var(--muted);display:flex;gap:10px;align-items:center}
+.chev{transition:transform 0.2s;font-size:11px;color:#bbb}
+.chev.open{transform:rotate(180deg)}
+.phase-body{display:none;border-top:1px solid var(--line)}
+.phase-body.open{display:block}
+.section-hdr{padding:7px 16px;background:#fbfbf9;font-size:11px;font-weight:700;letter-spacing:0.4px;color:#8b8f92;text-transform:uppercase;border-bottom:1px solid #f2f1ec}
+.task-row{display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:start;padding:10px 16px;border-top:1px solid #f2f1ec;cursor:pointer}
+.task-row:hover{background:#fafaf8}
+.task-row:first-child{border-top:none}
+.task-row input[type=checkbox]{margin-top:2px;width:15px;height:15px;accent-color:var(--green);cursor:pointer}
+.task-text{font-size:14px;line-height:1.4}
+.task-text.done{color:#b4b6b9;text-decoration:line-through}
+.task-detail{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.task-detail.done{color:#ccc}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;letter-spacing:0.2px}
+.tag-au{background:#E1F5EE;color:#0F6E56}
+.tag-uk{background:#E6F1FB;color:#185FA5}
+.tag-nz{background:#FAEEDA;color:#854F0B}
+.tag-note{background:#f4f4f1;color:#777;border:1px solid var(--line)}
+.tag-high{background:#FCEBEB;color:#A32D2D}
+.tag-med{background:#FAEEDA;color:#854F0B}
+.tag-low{background:#EAF3DE;color:#3B6D11}
+.task-num{font-size:11px;color:#ccc;margin-top:2px}
 
-/* ── Expanded next steps ── */
-.task-steps{display:none;border-top:1px solid #f0f0ec;padding:14px 16px 14px 44px;background:#fafaf8}
-.task-steps.open{display:block}
-.steps-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#aaa;margin-bottom:10px}
-.step-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0ec}
-.step-item:last-child{border-bottom:none}
-.step-num{font-size:11px;font-weight:700;color:#bbb;min-width:18px;margin-top:1px}
-.step-text{font-size:13px;color:#555;line-height:1.4}
-.step-link{font-size:12px;color:#185FA5;margin-top:4px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;text-decoration:underline}
-.step-link:hover{color:#0F6E56}
+/* ── Progress cards ── */
+.stage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.stage-card{padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.stage-card h4{font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)}
 
-/* ── Add task panel ── */
-.add-panel{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:18px;margin-bottom:20px}
-.add-panel-title{font-size:13px;font-weight:600;color:#555;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.add-grid{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:end}
-.add-grid-full{display:grid;grid-template-columns:1fr;gap:8px}
-.field-group{display:flex;flex-direction:column;gap:4px}
-.field-label{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.3px}
-.field-input{font-size:13px;padding:8px 12px;border:1px solid #e8e8e4;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;outline:none;transition:border-color 0.1s}
-.field-input:focus{border-color:#9990e0}
-.field-input.wide{width:100%}
-.add-row2{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.add-submit{font-size:13px;padding:8px 18px;border-radius:8px;border:1px solid #9990e0;background:#534AB7;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.1s}
-.add-submit:hover{background:#443a9a}
-.smart-hint{display:none;font-size:12px;color:#534AB7;margin-top:6px;display:flex;align-items:center;gap:5px}
-.smart-hint.show{display:flex}
-.spinner{width:10px;height:10px;border:1.5px solid #d0d0f0;border-top-color:#534AB7;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ── Notes ── */
+.notes-area{width:100%;min-height:200px;padding:14px;border:1px solid var(--line);border-radius:12px;font:inherit;font-size:14px;background:#fff;resize:vertical;outline:none;color:var(--text)}
+.notes-area:focus{border-color:#b0aee0}
 
-/* ── Done section ── */
-.done-section{margin-top:8px}
-.done-hidden .done-section{display:none}
+/* ── Modal ── */
+dialog{border:none;border-radius:16px;padding:0;max-width:520px;width:calc(100vw - 32px);box-shadow:0 8px 40px rgba(0,0,0,0.15)}
+dialog::backdrop{background:rgba(0,0,0,0.25)}
+.modal-inner{padding:22px}
+.modal-inner h3{font-size:17px;font-weight:700;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-grid .full{grid-column:1/-1}
+.field-label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:5px}
+.field-input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit;font-size:13px;outline:none;color:var(--text)}
+.field-input:focus{border-color:#b0aee0}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 
-/* ── Backlog board ── */
-.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:24px}
-.col-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;overflow:hidden}
-.col-head{padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f0f0ec;background:#fafaf8}
-.col-head-title{font-size:13px;font-weight:600}
-.col-count-badge{font-size:11px;color:#aaa;margin-left:auto}
-.col-body{padding:8px;display:flex;flex-direction:column;gap:6px;min-height:60px}
-.bl-card{background:#f9f9f7;border:1px solid #eee;border-radius:7px;padding:10px 12px}
-.bl-name{font-size:13px;font-weight:500;color:#1a1a1a;line-height:1.4}
-.bl-meta{display:flex;align-items:center;gap:5px;margin-top:5px;flex-wrap:wrap}
-.bl-actions{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
-.bl-btn{font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid #e0e0de;background:#fff;cursor:pointer;color:#666;font-family:inherit}
-.bl-btn:hover{background:#f0f0f8;color:#534AB7;border-color:#c8c5f0}
-.bl-btn.green{color:#0F6E56;border-color:#9FE1CB}
-.bl-btn.green:hover{background:#E1F5EE}
-.bl-btn.red{color:#A32D2D;border-color:#f09595}
-.bl-btn.red:hover{background:#FCEBEB}
-.empty-col{font-size:12px;color:#ccc;text-align:center;padding:14px 0;font-style:italic}
+/* Reminder modal */
+.reminder-modal{border:none;border-radius:16px;padding:0;max-width:400px;width:calc(100vw - 32px);box-shadow:0 8px 40px rgba(0,0,0,0.15)}
+.reminder-modal::backdrop{background:rgba(0,0,0,0.25)}
+.rm-status{font-size:12px;color:var(--green);margin-top:10px;min-height:16px;text-align:center}
 
-/* ── Reminder modal ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:200;display:flex;align-items:center;justify-content:center}
-.modal{background:#fff;border-radius:14px;padding:26px;width:400px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.15)}
-.modal-title{font-size:17px;font-weight:600;margin-bottom:4px}
-.modal-sub{font-size:13px;color:#888;margin-bottom:20px}
-.modal-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.modal-field label{font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.3px}
-.modal-field input,.modal-field select,.modal-field textarea{font-size:13px;padding:9px 12px;border:1px solid #e0e0de;border-radius:8px;font-family:inherit;outline:none;color:#1a1a1a}
-.modal-field input:focus,.modal-field textarea:focus{border-color:#9990e0}
-.modal-field textarea{resize:vertical;min-height:60px}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
-.modal-cancel{font-size:13px;padding:8px 16px;border-radius:8px;border:1px solid #e0e0de;background:#fff;cursor:pointer;color:#666;font-family:inherit}
-.modal-save{font-size:13px;padding:8px 18px;border-radius:8px;border:none;background:#534AB7;color:#fff;font-weight:600;cursor:pointer;font-family:inherit}
-.modal-save:hover{background:#443a9a}
-.modal-save:disabled{opacity:0.5;cursor:not-allowed}
-.modal-status{font-size:12px;color:#0F6E56;margin-top:8px;text-align:center;min-height:16px}
-
-/* ── Category colours ── */
-.cat-content{background:#E1F5EE;color:#0F6E56}
-.cat-social{background:#FAEEDA;color:#854F0B}
-.cat-webinar{background:#EEF4FB;color:#185FA5}
-.cat-ads{background:#F3E8FF;color:#6B21A8}
-.cat-adhoc{background:#F1EFE8;color:#5F5E5A}
-
-.panel{display:none}
-.panel.active{display:block}
+/* Responsive */
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{border-right:none;border-bottom:1px solid var(--line);height:auto;position:static}.info-grid{grid-template-columns:1fr}.main{padding:18px}}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- ═══ SIDEBAR ═══ -->
-<div class="sidebar">
-  <div class="logo">LegalVision<span>Task Tracker</span></div>
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="brand">
+    <h1>Webinar dashboard</h1>
+    <p>One entry per webinar — ops + slides in one place</p>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="openCreate()">+ New webinar</button>
+    <button class="btn btn-sm" onclick="exportData()" title="Export backup">Export</button>
+    <button class="btn btn-sm" onclick="document.getElementById('imp').click()" title="Import backup">Import</button>
+    <input id="imp" type="file" accept="application/json" style="display:none" onchange="importData(event)">
+  </div>
+  <input class="search" id="search" placeholder="Search webinars…" oninput="renderSidebar()">
+  <div class="webinar-list" id="webinarList"></div>
+  <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--line)">
+    <button class="btn btn-sm" style="width:100%" onclick="window.history.back()">← Back</button>
+  </div>
+</aside>
 
-  <div class="nav-section">Views</div>
-  <button class="nav-item active" id="nav-today" onclick="showView('today')">
-    <div class="nav-dot" style="background:#1D9E75"></div> Today
-    <span class="nav-badge" id="nb-today">0</span>
-  </button>
-  <button class="nav-item" id="nav-upcoming" onclick="showView('upcoming')">
-    <div class="nav-dot" style="background:#185FA5"></div> Upcoming
-    <span class="nav-badge" id="nb-upcoming">0</span>
-  </button>
-  <button class="nav-item" id="nav-backlog" onclick="showView('backlog')">
-    <div class="nav-dot" style="background:#534AB7"></div> Backlog
-    <span class="nav-badge" id="nb-backlog">0</span>
-  </button>
-  <button class="nav-item" id="nav-all" onclick="showView('all')">
-    <div class="nav-dot" style="background:#aaa"></div> All tasks
-  </button>
-
-  <div class="sidebar-divider"></div>
-  <div class="nav-section">Checklists</div>
-  <button class="checklist-link" onclick="openCL('ops')">
-    <div class="nav-dot" style="background:#534AB7"></div> Webinar dashboard
-    <span class="nav-prog" id="prog-ops">—</span>
-  </button>
-
-  <div class="sidebar-divider"></div>
-  <div class="nav-section">Filter by category</div>
-  <button class="nav-item" id="nav-fc-content" onclick="setFilter('content')"><div class="nav-dot" style="background:#1D9E75"></div>Content editing</button>
-  <button class="nav-item" id="nav-fc-social" onclick="setFilter('social')"><div class="nav-dot" style="background:#BA7517"></div>Social media</button>
-  <button class="nav-item" id="nav-fc-webinar" onclick="setFilter('webinar')"><div class="nav-dot" style="background:#185FA5"></div>Webinar</button>
-  <button class="nav-item" id="nav-fc-ads" onclick="setFilter('ads')"><div class="nav-dot" style="background:#6B21A8"></div>External ads</button>
-  <button class="nav-item" id="nav-fc-adhoc" onclick="setFilter('adhoc')"><div class="nav-dot" style="background:#888"></div>Ad hoc</button>
-  <button class="nav-item" style="margin-top:4px" onclick="setFilter(null)"><div class="nav-dot" style="background:#ccc"></div>Clear filter</button>
+<!-- ── MAIN ── -->
+<main class="main" id="main"></main>
 </div>
 
-<!-- ═══ MAIN ═══ -->
-<div class="main">
-
-  <!-- TODAY -->
-  <div class="panel active" id="panel-today">
-    <div class="page-header">
-      <h1 id="today-h">Monday</h1>
-      <p id="today-d" style="color:#888;font-size:14px"></p>
+<!-- ── NEW / EDIT WEBINAR MODAL ── -->
+<dialog id="webinarModal">
+  <div class="modal-inner">
+    <h3 id="modalTitle">New webinar</h3>
+    <div class="form-grid">
+      <div class="full"><label class="field-label">Webinar name</label><input class="field-input" id="fName" placeholder="e.g. Avoiding Costly Payroll Mistakes in Your Australian Business"></div>
+      <div><label class="field-label">Date</label><input class="field-input" id="fDate" type="date"></div>
+      <div><label class="field-label">Region</label><select class="field-input" id="fRegion"><option value="AU">AU</option><option value="UK">UK</option><option value="NZ">NZ</option></select></div>
+      <div><label class="field-label">Status</label><select class="field-input" id="fStatus"><option>Planning</option><option>Marketing</option><option>Pre-Event</option><option>Live</option><option>Post-Event</option><option>Completed</option></select></div>
+      <div><label class="field-label">Speaker(s)</label><input class="field-input" id="fSpeaker" placeholder="e.g. James True, Yin Chiew"></div>
+      <div><label class="field-label">Owner</label><input class="field-input" id="fOwner" value="Sambridi"></div>
+      <div class="full"><label class="field-label">Notes</label><textarea class="field-input" id="fNotes" style="min-height:80px;resize:vertical"></textarea></div>
     </div>
-    <div class="summary-row" id="today-stats"></div>
-    <div id="today-add"></div>
-    <div id="today-list"></div>
-  </div>
-
-  <!-- UPCOMING -->
-  <div class="panel" id="panel-upcoming">
-    <div class="page-header">
-      <h1>Upcoming tasks</h1>
-      <p style="color:#888;font-size:14px">Everything scheduled for the next 4 weeks</p>
-    </div>
-    <div id="upcoming-add"></div>
-    <div id="upcoming-list"></div>
-  </div>
-
-  <!-- BACKLOG -->
-  <div class="panel" id="panel-backlog">
-    <div class="page-header">
-      <h1>Backlog board</h1>
-      <p style="color:#888;font-size:14px">Persistent tasks — move between columns as work progresses</p>
-    </div>
-    <div class="summary-row" id="backlog-stats"></div>
-    <div id="backlog-add"></div>
-    <div class="board" id="board"></div>
-  </div>
-
-  <!-- ALL -->
-  <div class="panel" id="panel-all">
-    <div class="page-header">
-      <h1>All tasks</h1>
-      <p style="color:#888;font-size:14px">Every task across all views</p>
-    </div>
-    <div id="all-list"></div>
-  </div>
-
-</div>
-</div>
-
-<!-- ═══ WEBINAR PICKER MODAL ═══ -->
-<div class="overlay" id="webinar-picker-overlay" style="display:none">
-  <div class="modal" style="width:360px">
-    <div class="modal-title">Link to a webinar</div>
-    <div class="modal-sub">Which webinar does this task belong to? It will open directly in the dashboard.</div>
-    <div id="webinar-picker-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:240px;overflow-y:auto"></div>
     <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeWebinarPicker(true)">Skip — no webinar link</button>
+      <button class="btn" onclick="closeWebinarModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWebinar()">Save webinar</button>
     </div>
   </div>
-</div>
+</dialog>
 
-<!-- ═══ REMINDER MODAL ═══ -->
-<div class="overlay" id="modal-overlay" style="display:none">
-  <div class="modal">
-    <div class="modal-title">Set a reminder</div>
-    <div class="modal-sub">Creates a Google Calendar event that pops up on your phone and desktop.</div>
-    <div class="modal-field"><label>Task</label><input type="text" id="m-task" readonly style="background:#f9f9f7;color:#666"></div>
-    <div class="modal-field"><label>Date</label><input type="date" id="m-date"></div>
-    <div class="modal-field"><label>Time</label><input type="time" id="m-time"></div>
-    <div class="modal-field"><label>Note (optional)</label><textarea id="m-note" placeholder="e.g. Check Jira ticket first, confirm speaker availability"></textarea></div>
+<!-- ── REMINDER MODAL ── -->
+<dialog class="reminder-modal" id="reminderModal">
+  <div class="modal-inner">
+    <h3>Set a calendar reminder</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5">Creates a Google Calendar event with a pop-up notification. You'll be asked to sign in with Google the first time.</p>
+    <div style="margin-bottom:12px">
+      <label class="field-label">Webinar</label>
+      <input class="field-input" id="rm-task" readonly style="background:#f9f9f7;color:#666">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div><label class="field-label">Date</label><input class="field-input" id="rm-date" type="date"></div>
+      <div><label class="field-label">Time</label><input class="field-input" id="rm-time" type="time" value="09:00"></div>
+    </div>
+    <div style="margin-bottom:16px">
+      <label class="field-label">Note (optional)</label>
+      <input class="field-input" id="rm-note" placeholder="e.g. Confirm speakers before this date">
+    </div>
     <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-save" id="m-save" onclick="createCalendarReminder()">Create calendar reminder</button>
+      <button class="btn" onclick="closeReminderModal()">Cancel</button>
+      <button class="btn btn-primary" id="rm-save" onclick="createReminder()">Connect Google Calendar</button>
     </div>
-    <div class="modal-status" id="m-status"></div>
+    <div class="rm-status" id="rm-status"></div>
   </div>
-</div>
+</dialog>
 
+<!-- Google API scripts — only load when reminder is triggered -->
 <script>
-// ═══════════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════════
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const CAT={
-  content:{label:'Content editing',color:'cat-content',dot:'#1D9E75'},
-  social:{label:'Social media',color:'cat-social',dot:'#BA7517'},
-  webinar:{label:'Webinar',color:'cat-webinar',dot:'#185FA5'},
-  ads:{label:'External ads',color:'cat-ads',dot:'#6B21A8'},
-  adhoc:{label:'Ad hoc',color:'cat-adhoc',dot:'#888'}
-};
-const COL_ORDER=['todo','inprogress','review','done'];
-const COL_LABELS={todo:'To do',inprogress:'In progress',review:'In review',done:'Done'};
-const COL_COLORS={todo:'#888',inprogress:'#185FA5',review:'#BA7517',done:'#1D9E75'};
+// ═══════════ CALENDAR REMINDERS (Google OAuth — works on GitHub Pages) ═══════════
+// How it works:
+// 1. User clicks ⏰ Reminder
+// 2. On first use, Google OAuth popup signs them in (scope: calendar.events)
+// 3. We call the Google Calendar REST API directly with their access token
+// 4. No backend needed — fully client-side
 
-// Next steps per category
-const NEXT_STEPS={
-  content:[
-    {s:'Open the article URL and read through fully before editing'},
-    {s:'Run the "Edits an article into LV style" AI prompt to restructure'},
-    {s:'Add In Short + Tips using the AI prompt — attach article URL'},
-    {s:'Write 2 FAQs sourced from legalvision.com.au only'},
-    {s:'Do a final proofread — check UK/AU spelling, active voice, no legalese'},
-    {s:'Publish on WordPress — confirm formatting, tags, and category are correct'},
-  ],
-  social:[
-    {s:'Copy article URL and open the relevant AI prompt from the prompt library'},
-    {s:'Run LinkedIn Post: Article (Marketing) prompt — paste URL into the prompt'},
-    {s:'Run Create a Facebook Post: Article (Buffer) prompt for Facebook version'},
-    {s:'Check jurisdiction tag (AU/NZ/UK) is correct in the post'},
-    {s:'Schedule in Buffer — confirm correct channel and posting time'},
-  ],
-  webinar:[
-    {s:'Open the Webinar Dashboard to see the full ops + slides checklist for this webinar', link:'webinar'},
-    {s:'Check the "Next task" panel in the dashboard — it tells you exactly what to do next'},
-    {s:'Ops stream: Zoom Events setup → Marketo → Landing pages → UTMs → LV Events page'},
-    {s:'Slides stream: Talking points PDF → Gamma → Google Slides → Mandatory slides → Send to Emily'},
-    {s:'Practice run: duplicate live event → rename to PRACTICE RUN → set time → publish'},
-    {s:'Post-webinar: download recording → YouTube upload → Spotify (200+ reg only)'},
-  ],
-  ads:[
-    {s:'Review the marketing brief and confirm advertorial brief with partner'},
-    {s:'Run the Paid Advertorial for Webinar AI prompt with webinar details'},
-    {s:'For LinkedIn paid ads: run LinkedIn Paid Advertising prompt — produce 3 versions'},
-    {s:'Submit copy for partner/agency review and confirm placement dates'},
-    {s:'Track UTM performance post-launch in analytics'},
-  ],
-  adhoc:[
-    {s:'Review the task details and identify any dependencies'},
-    {s:'Complete the task and note any follow-up actions needed'},
-    {s:'Update relevant tickets or docs once done'},
-  ]
-};
+const GCAL_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // Replace with your OAuth client ID from console.cloud.google.com
+const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
 
-const todayStr=()=>{const d=new Date();return d.toISOString().split('T')[0];};
-const fmtDate=s=>{if(!s)return'';const[y,m,d]=s.split('-');return d+' '+MONTHS[parseInt(m)-1]+' '+y;};
-const daysDiff=s=>{if(!s)return null;const t=new Date(todayStr()),dt=new Date(s);return Math.round((dt-t)/(1000*60*60*24));};
+let gcalToken = null;
+let pendingReminderTask = null;
+let tokenClient = null;
 
-function dueLabel(s){
-  const d=daysDiff(s);
-  if(d===null)return null;
-  if(d<0)return{text:'Overdue by '+Math.abs(d)+'d',cls:'due-overdue',urgency:'overdue'};
-  if(d===0)return{text:'Due today',cls:'due-today',urgency:'today'};
-  if(d<=3)return{text:'Due in '+d+'d',cls:'due-soon',urgency:'soon'};
-  return{text:'Due '+fmtDate(s),cls:'due-future',urgency:'future'};
+function loadGoogleIdentity(callback){
+  if(window.google?.accounts?.oauth2){callback();return;}
+  const s=document.createElement('script');
+  s.src='https://accounts.google.com/gsi/client';
+  s.onload=callback;
+  document.head.appendChild(s);
 }
 
-// Default tasks
-const DEF_TASKS=[
-  {id:'t1',name:'Edit and publish article on WordPress',cat:'content',dueDate:todayStr(),done:false,source:'today',reminder:null},
-  {id:'t2',name:'Write Article In Short + Tips for Business',cat:'content',dueDate:todayStr(),done:false,source:'today',reminder:null},
-  {id:'t3',name:'Write Article FAQs (2 per article)',cat:'content',dueDate:todayStr(),done:false,source:'today',reminder:null},
-  {id:'t4',name:'Create LinkedIn post for article',cat:'social',dueDate:todayStr(),done:false,source:'today',reminder:null},
-  {id:'t5',name:'Schedule social posts in Buffer (AU/NZ/UK)',cat:'social',dueDate:todayStr(),done:false,source:'today',reminder:null},
-  {id:'t6',name:'Set up Zoom Event for upcoming webinar',cat:'webinar',dueDate:todayStr(),done:false,source:'today',reminder:null},
-  {id:'t7',name:'Create webinar slides in Gamma + Google Slides',cat:'webinar',dueDate:todayStr(),done:false,source:'today',reminder:null},
-  {id:'t8',name:'Coordinate external advertorial placement',cat:'ads',dueDate:todayStr(),done:false,source:'today',reminder:null},
-];
-const DEF_BACKLOG=[
-  {id:'b1',name:'Write post-webinar key takeaways email',cat:'webinar',col:'todo'},
-  {id:'b2',name:'Create webinar battle cards for sales team',cat:'webinar',col:'todo'},
-  {id:'b3',name:'Publish webinar transcript as article',cat:'content',col:'todo'},
-  {id:'b4',name:'Write newsletter article summaries (x4)',cat:'social',col:'todo'},
-  {id:'b5',name:'Create LinkedIn post-event carousel',cat:'social',col:'todo'},
-  {id:'b6',name:'Upload recording to YouTube',cat:'webinar',col:'todo'},
-  {id:'b7',name:'Upload recording to Spotify (200+ reg only)',cat:'webinar',col:'todo'},
-  {id:'b8',name:'Create membership case study draft',cat:'content',col:'todo'},
-  {id:'b9',name:'Set up practice run in Zoom Events',cat:'webinar',col:'todo'},
-  {id:'b10',name:'Create UTMs for upcoming webinar',cat:'webinar',col:'todo'},
-];
-
-let tasks=JSON.parse(localStorage.getItem('lv_tasks_v1')||'null')||DEF_TASKS.map(t=>({...t}));
-let backlog=JSON.parse(localStorage.getItem('lv_backlog_v1')||'null')||DEF_BACKLOG.map(t=>({...t}));
-let activeView='today';
-let activeFilter=null;
-let showDone=false;
-let expandedTask=null;
-let modalTaskId=null;
-let typingTimer=null;
-
-function save(){
-  localStorage.setItem('lv_tasks_v1',JSON.stringify(tasks));
-  localStorage.setItem('lv_backlog_v1',JSON.stringify(backlog));
-  updateSidebarBadges();
-  updateChecklistProgress();
-}
-
-// ═══════════════════════════════════════════════════════
-// ROUTING
-// ═══════════════════════════════════════════════════════
-function showView(v){
-  activeView=v;activeFilter=null;
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('panel-'+v).classList.add('active');
-  document.getElementById('nav-'+v).classList.add('active');
-  renderAll();
-}
-function setFilter(f){
-  activeFilter=f;
-  document.querySelectorAll('[id^="nav-fc-"]').forEach(b=>b.classList.remove('active'));
-  if(f)document.getElementById('nav-fc-'+f)?.classList.add('active');
-  renderAll();
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER ENGINE
-// ═══════════════════════════════════════════════════════
-function renderAll(){
-  renderToday();renderUpcoming();renderBacklog();renderAll2();
-  updateSidebarBadges();updateChecklistProgress();
-}
-
-function filterTasks(list){
-  return activeFilter?list.filter(t=>t.cat===activeFilter):list;
-}
-
-function renderToday(){
-  const now=new Date();
-  document.getElementById('today-h').textContent=DAYS[now.getDay()]+'\'s checklist';
-  document.getElementById('today-d').textContent=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
-
-  const td=todayStr();
-  let todayTasks=filterTasks(tasks.filter(t=>t.source==='today'||(t.dueDate&&t.dueDate<=td&&!t.done)||(t.dueDate===td)));
-  // dedupe
-  const seen=new Set();todayTasks=todayTasks.filter(t=>{if(seen.has(t.id))return false;seen.add(t.id);return true;});
-
-  const pending=todayTasks.filter(t=>!t.done);
-  const done=todayTasks.filter(t=>t.done);
-  const pct=todayTasks.length?Math.round(done.length/todayTasks.length*100):0;
-
-  document.getElementById('today-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Today</div><div class="stat-val">${pending.length}</div><div class="stat-sub">tasks remaining</div><div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:#1D9E75"></div></div></div>
-    <div class="stat-card"><div class="stat-label">Done</div><div class="stat-val">${done.length}</div><div class="stat-sub">${pct}% complete</div></div>
-    <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-val" style="color:${tasks.filter(t=>!t.done&&t.dueDate&&daysDiff(t.dueDate)<0).length>0?'#A32D2D':'#1a1a1a'}">${tasks.filter(t=>!t.done&&t.dueDate&&daysDiff(t.dueDate)<0).length}</div><div class="stat-sub">need attention</div></div>
-    <div class="stat-card"><div class="stat-label">Reminders</div><div class="stat-val">${tasks.filter(t=>t.reminder).length}</div><div class="stat-sub">in Calendar</div></div>
-  `;
-
-  document.getElementById('today-add').innerHTML=renderAddPanel('today');
-  attachAddListeners('today');
-
-  let html='';
-  if(pending.length===0&&done.length===0){
-    html='<div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px">All clear — no tasks for today. Add one above.</div>';
-  } else {
-    if(pending.length>0){
-      html+=`<div class="section-hdr"><h3>To do</h3><span class="count">${pending.length} tasks</span></div>`;
-      pending.forEach(t=>{html+=renderTaskCard(t);});
-    }
-    if(done.length>0){
-      html+=`<div class="section-hdr" style="margin-top:20px"><h3>Completed</h3><span class="count">${done.length} tasks</span>
-        <button class="toggle-done" onclick="toggleDoneVisible()">${showDone?'Hide':'Show'}</button>
-      </div>`;
-      if(showDone){done.forEach(t=>{html+=renderTaskCard(t);});}
-    }
-  }
-  document.getElementById('today-list').innerHTML=html;
-  attachTaskListeners();
-}
-
-function renderUpcoming(){
-  const td=todayStr();
-  let upcoming=filterTasks(tasks.filter(t=>!t.done&&t.dueDate&&t.dueDate>td));
-  upcoming.sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
-
-  document.getElementById('upcoming-add').innerHTML=renderAddPanel('upcoming');
-  attachAddListeners('upcoming');
-
-  if(upcoming.length===0){
-    document.getElementById('upcoming-list').innerHTML='<div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px">No upcoming tasks. Add one above with a future due date.</div>';
+function initTokenClient(callback){
+  if(GCAL_CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID'){
+    document.getElementById('rm-status').textContent='⚠️ Add your Google OAuth Client ID to enable calendar reminders. See the README for setup instructions.';
+    document.getElementById('rm-save').disabled=false;
+    document.getElementById('rm-save').textContent='Create reminder';
     return;
   }
-
-  // Group by week
-  const groups={};
-  upcoming.forEach(t=>{
-    const d=daysDiff(t.dueDate);
-    const wk=d<=7?'This week':d<=14?'Next week':d<=21?'In 2–3 weeks':'In 3–4 weeks';
-    if(!groups[wk])groups[wk]=[];
-    groups[wk].push(t);
+  loadGoogleIdentity(()=>{
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:GCAL_CLIENT_ID,
+      scope:GCAL_SCOPE,
+      callback:(resp)=>{
+        if(resp.error){
+          document.getElementById('rm-status').textContent='Could not sign in to Google. Please try again.';
+          document.getElementById('rm-save').disabled=false;
+          document.getElementById('rm-save').textContent='Try again';
+          return;
+        }
+        gcalToken=resp.access_token;
+        doCreateCalendarEvent();
+      }
+    });
+    callback&&callback();
   });
-
-  let html='';
-  Object.entries(groups).forEach(([label,grpTasks])=>{
-    html+=`<div class="section-hdr"><h3>${label}</h3><span class="count">${grpTasks.length} tasks</span></div>`;
-    grpTasks.forEach(t=>{html+=renderTaskCard(t);});
-  });
-  document.getElementById('upcoming-list').innerHTML=html;
-  attachTaskListeners();
 }
 
-function renderBacklog(){
-  const bl=activeFilter?backlog.filter(t=>t.cat===activeFilter):backlog;
-  const done=bl.filter(t=>t.col==='done').length;
-  const pct=bl.length?Math.round(done/bl.length*100):0;
-  document.getElementById('backlog-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val">${bl.length}</div><div class="stat-sub">${bl.filter(t=>t.col==='todo').length} to do</div></div>
-    <div class="stat-card"><div class="stat-label">In progress</div><div class="stat-val">${bl.filter(t=>t.col==='inprogress').length}</div><div class="stat-sub">active now</div></div>
-    <div class="stat-card"><div class="stat-label">In review</div><div class="stat-val">${bl.filter(t=>t.col==='review').length}</div><div class="stat-sub">waiting on others</div></div>
-    <div class="stat-card"><div class="stat-label">Done</div><div class="stat-val">${done}</div><div class="stat-sub">${pct}% complete</div><div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:#1D9E75"></div></div></div>
-  `;
+function setReminder(taskName,date){
+  pendingReminderTask={name:taskName};
+  document.getElementById('rm-task').value=taskName;
+  document.getElementById('rm-date').value=date||new Date().toISOString().split('T')[0];
+  document.getElementById('rm-time').value='09:00';
+  document.getElementById('rm-note').value='';
+  document.getElementById('rm-status').textContent='';
+  document.getElementById('rm-save').disabled=false;
+  document.getElementById('rm-save').textContent=gcalToken?'Create reminder':'Connect Google Calendar';
+  document.getElementById('reminderModal').showModal();
+}
 
-  document.getElementById('backlog-add').innerHTML=renderBacklogAddPanel();
-  document.getElementById('backlog-add').querySelector('form')?.addEventListener('submit',e=>{e.preventDefault();addBacklogTask();});
-  document.getElementById('backlog-add').querySelector('#bl-submit')?.addEventListener('click',addBacklogTask);
+function closeReminderModal(){document.getElementById('reminderModal').close();}
 
-  const board=document.getElementById('board');board.innerHTML='';
-  COL_ORDER.forEach(col=>{
-    const colTasks=bl.filter(t=>t.col===col);
-    const others=COL_ORDER.filter(c=>c!==col);
-    const div=document.createElement('div');div.className='col-card';
+function createReminder(){
+  const date=document.getElementById('rm-date').value;
+  const time=document.getElementById('rm-time').value;
+  if(!date||!time){document.getElementById('rm-status').textContent='Please set a date and time.';return;}
+  const btn=document.getElementById('rm-save');
+  btn.disabled=true;btn.textContent='Connecting…';
+  document.getElementById('rm-status').textContent='';
+  if(gcalToken){doCreateCalendarEvent();}
+  else{initTokenClient(()=>{tokenClient.requestAccessToken({prompt:'consent'});});}
+}
+
+async function doCreateCalendarEvent(){
+  const btn=document.getElementById('rm-save');
+  btn.textContent='Creating…';
+  const date=document.getElementById('rm-date').value;
+  const time=document.getElementById('rm-time').value;
+  const note=document.getElementById('rm-note').value.trim();
+  const w=activeW();
+  const [h,m]=time.split(':').map(Number);
+  const endH=String(h+(m+30>=60?1:0)).padStart(2,'0'),endM=String((m+30)%60).padStart(2,'0');
+  const event={
+    summary:`⏰ ${pendingReminderTask.name}`,
+    description:`Webinar: ${w?.name||''}\nRegion: ${w?.region||''}\nStatus: ${w?.status||''}\nSpeaker: ${w?.speaker||''}${note?'\n\nNote: '+note:''}`,
+    start:{dateTime:`${date}T${time}:00`,timeZone:'Australia/Sydney'},
+    end:{dateTime:`${date}T${endH}:${endM}:00`,timeZone:'Australia/Sydney'},
+    reminders:{useDefault:false,overrides:[{method:'popup',minutes:10},{method:'popup',minutes:0}]}
+  };
+  try{
+    const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
+      body:JSON.stringify(event)
+    });
+    if(res.status===401){gcalToken=null;tokenClient.requestAccessToken({prompt:''});return;}
+    if(!res.ok)throw new Error(await res.text());
+    const data=await res.json();
+    btn.textContent='✓ Reminder created';
+    btn.style.background='var(--green)';btn.style.borderColor='var(--green)';
+    document.getElementById('rm-status').innerHTML=`Saved to Google Calendar. <a href="${data.htmlLink}" target="_blank" style="color:var(--blue)">View event →</a>`;
+    setTimeout(closeReminderModal,2800);
+  }catch(e){
+    btn.disabled=false;btn.textContent='Try again';btn.style.background='';btn.style.borderColor='';
+    document.getElementById('rm-status').textContent='Could not create event. Please try again.';
+    console.error(e);
+  }
+}
+</script>
+
+<script>
+// ═══════════ DATA ═══════════
+const SK='lv_webinar_dash_v1', SS='lv_webinar_state_v1';
+const load=(k,fb)=>{try{return JSON.parse(localStorage.getItem(k))??fb;}catch{return fb;}};
+
+let webinars=load(SK,[{id:crypto.randomUUID(),name:'7 Legal Mistakes Webinar',date:'2026-04-14',status:'Marketing',region:'AU',speaker:'Ruben + Michaela',owner:'Sambridi',notes:'Sample webinar.'}]);
+let wState=load(SS,{});
+let activeId=webinars[0]?.id||null;
+let editingId=null;
+
+function persist(){localStorage.setItem(SK,JSON.stringify(webinars));localStorage.setItem(SS,JSON.stringify(wState));syncProgress();}
+function getState(id){if(!wState[id])wState[id]={checks:{},phaseOpen:{},slideOpen:{},hrc:{},notes:''};return wState[id];}
+function activeW(){return webinars.find(w=>w.id===activeId);}
+function esc(s=''){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function fmtDate(d){if(!d)return'—';const x=new Date(d+'T00:00');return x.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});}
+function regionAllows(task,region){return!task.jur||task.jur.toUpperCase()===region.toUpperCase();}
+
+// Sync overall progress to shared localStorage for tracker sidebar
+function syncProgress(){
+  const allChecks={};
+  webinars.forEach(w=>{
+    const st=getState(w.id).checks;
+    opsPhases.forEach(ph=>ph.sections.forEach(s=>s.tasks.forEach(t=>{
+      if(regionAllows(t,w.region)){const k=`ops|${ph.id}|${s.name}|${t.t}`;allChecks[k]=!!st[k];}
+    })));
+    slidePhases.forEach(ph=>ph.tasks.forEach(t=>{const k=`slides|${ph.id}|${t.n}`;allChecks[k]=!!st[k];}));
+  });
+  localStorage.setItem('lv_ops_checklist',JSON.stringify(allChecks));
+  localStorage.setItem('lv_slides_checklist',JSON.stringify(allChecks));
+}
+
+// ═══════════ COUNT HELPERS ═══════════
+function countOps(id){
+  const s=getState(id).checks,w=webinars.find(x=>x.id===id);
+  let total=0,done=0;
+  opsPhases.forEach(ph=>ph.sections.forEach(sec=>sec.tasks.forEach(task=>{if(regionAllows(task,w.region)){total++;if(s[`ops|${ph.id}|${sec.name}|${task.t}`])done++;}})));
+  return{total,done,pct:total?Math.round(done/total*100):0};
+}
+function countSlides(id){
+  const s=getState(id).checks;let total=0,done=0;
+  slidePhases.forEach(ph=>ph.tasks.forEach(t=>{total++;if(s[`slides|${ph.id}|${t.n}`])done++;}));
+  return{total,done,pct:total?Math.round(done/total*100):0};
+}
+function countAll(id){const a=countOps(id),b=countSlides(id);return{total:a.total+b.total,done:a.done+b.done,pct:(a.total+b.total)?Math.round((a.done+b.done)/(a.total+b.total)*100):0};}
+function nextTask(id){
+  const st=getState(id).checks,w=webinars.find(x=>x.id===id);
+  for(const ph of opsPhases)for(const s of ph.sections)for(const t of s.tasks)
+    if(regionAllows(t,w.region)&&!st[`ops|${ph.id}|${s.name}|${t.t}`])return{label:'Operations',phase:ph.name,task:t.t};
+  for(const ph of slidePhases)for(const t of ph.tasks)
+    if(!st[`slides|${ph.id}|${t.n}`])return{label:'Slides',phase:ph.name,task:t.t};
+  return{label:'Complete',phase:'All done',task:'Everything is checked off for this webinar'};
+}
+
+// ═══════════ SIDEBAR ═══════════
+function renderSidebar(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const list=document.getElementById('webinarList');
+  list.innerHTML='';
+  const items=[...webinars].filter(w=>!q||`${w.name} ${w.speaker} ${w.status} ${w.region}`.toLowerCase().includes(q)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(!items.length){list.innerHTML='<div style="font-size:13px;color:var(--muted);text-align:center;padding:16px">No webinars found</div>';return;}
+  items.forEach(w=>{
+    const c=countAll(w.id);
+    const div=document.createElement('div');
+    div.className='wcard'+(w.id===activeId?' active':'');
+    div.onclick=()=>{activeId=w.id;renderSidebar();renderMain();};
     div.innerHTML=`
-      <div class="col-head"><div class="nav-dot" style="background:${COL_COLORS[col]}"></div><div class="col-head-title">${COL_LABELS[col]}</div><div class="col-count-badge">${colTasks.length}</div></div>
-      <div class="col-body">
-        ${colTasks.length===0?'<div class="empty-col">Nothing here</div>':colTasks.map(t=>`
-          <div class="bl-card">
-            <div class="bl-name">${t.name}</div>
-            <div class="bl-meta"><span class="cat-pill ${CAT[t.cat]?.color||'cat-adhoc'}" style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px">${CAT[t.cat]?.label||'Ad hoc'}</span>${t.cat==='webinar'?`<button style="font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid #B5D4F4;background:#f0f7ff;color:#185FA5;cursor:pointer;font-family:inherit" onclick="openCL('webinar'${t.webinarId?`,'${t.webinarId}'`:''})">Open dashboard →</button>`:''}</div>
-            <div class="bl-actions">
-              ${others.map(o=>`<button class="bl-btn" onclick="moveBacklog('${t.id}','${o}')">${COL_LABELS[o]}</button>`).join('')}
-              <button class="bl-btn green" onclick="blToToday('${t.id}')">+ Today</button>
-              <button class="bl-btn red" onclick="deleteBacklog('${t.id}')">Remove</button>
-            </div>
-          </div>`).join('')}
-      </div>`;
-    board.appendChild(div);
+      <div class="wcard-name">${esc(w.name)}</div>
+      <div class="wcard-meta">
+        <span>${fmtDate(w.date)}</span>
+        <span>${esc(w.region)}</span>
+        <span class="wpill ${c.pct===100?'green':''}">${c.pct}%</span>
+        <span style="margin-left:auto;font-size:11px">${esc(w.status)}</span>
+      </div>
+      <div class="wcard-bar"><div class="wcard-fill" style="width:${c.pct}%"></div></div>`;
+    list.appendChild(div);
   });
 }
 
-function renderAll2(){
-  const all=filterTasks([...tasks].sort((a,b)=>(a.dueDate||'9999').localeCompare(b.dueDate||'9999')));
-  const pending=all.filter(t=>!t.done);
-  const done=all.filter(t=>t.done);
-  let html='';
-  if(pending.length){
-    html+='<div class="section-hdr"><h3>Active</h3><span class="count">'+pending.length+' tasks</span></div>';
-    pending.forEach(t=>{html+=renderTaskCard(t);});
+// ═══════════ MAIN RENDER ═══════════
+function renderMain(){
+  const main=document.getElementById('main');
+  const w=activeW();
+  if(!w){
+    main.innerHTML=`<div class="empty-state"><h2>No webinar selected</h2><p>Create a new webinar using the button in the sidebar, or select one from the list.</p><button class="btn btn-primary" onclick="openCreate()">+ New webinar</button></div>`;
+    return;
   }
-  if(done.length){
-    html+='<div class="section-hdr" style="margin-top:20px"><h3>Completed</h3><span class="count">'+done.length+' tasks</span></div>';
-    done.forEach(t=>{html+=renderTaskCard(t);});
-  }
-  document.getElementById('all-list').innerHTML=html||'<div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px">No tasks yet.</div>';
-  attachTaskListeners();
-}
+  const overall=countAll(w.id),ops=countOps(w.id),slides=countSlides(w.id),nxt=nextTask(w.id);
+  main.innerHTML=`
+    <div class="hero">
+      <div class="hero-left">
+        <h2>${esc(w.name)}</h2>
+        <p>${fmtDate(w.date)} · ${esc(w.region)} · ${esc(w.status)}${w.speaker?' · '+esc(w.speaker):''}</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-sm" onclick="setReminder('${esc(w.name)}','${w.date}')">⏰ Reminder</button>
+        <button class="btn btn-sm" onclick="openEdit()">Edit</button>
+        <button class="btn btn-sm" onclick="duplicateW()">Duplicate</button>
+        <button class="btn btn-sm" style="color:var(--danger)" onclick="deleteW()">Delete</button>
+      </div>
+    </div>
 
-// ═══════════════════════════════════════════════════════
-// TASK CARD
-// ═══════════════════════════════════════════════════════
-function renderTaskCard(t){
-  const dl=dueLabel(t.dueDate);
-  const urgency=dl?.urgency||'future';
-  const steps=NEXT_STEPS[t.cat]||NEXT_STEPS.adhoc;
-  const isExpanded=expandedTask===t.id;
-  const catInfo=CAT[t.cat]||{label:'Ad hoc',color:'cat-adhoc'};
-
-  // Look up linked webinar name
-  let webinarName='';
-  if(t.cat==='webinar'&&t.webinarId){
-    try{
-      const wbs=JSON.parse(localStorage.getItem('lv_webinar_dash_v1')||'[]');
-      const wb=wbs.find(w=>w.id===t.webinarId);
-      if(wb)webinarName=wb.name;
-    }catch(e){}
-  }
-  const openCmd=t.cat==='webinar'&&t.webinarId
-    ?`openCL('webinar','${t.webinarId}')`
-    :`openCL('webinar')`;
-
-  return `
-  <div class="task-card ${t.done?'done-card':''} ${!t.done&&urgency==='overdue'?'overdue':''} ${!t.done&&urgency==='today'?'due-today':'upcoming'}" id="card-${t.id}">
-    <div class="task-top">
-      <input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleDone('${t.id}')" onclick="event.stopPropagation()">
-      <div class="task-body" onclick="toggleExpand('${t.id}')">
-        <div class="task-title ${t.done?'done':''}">${t.name}</div>
-        <div class="task-meta">
-          <span class="cat-pill ${catInfo.color}">${catInfo.label}</span>
-          ${dl?`<span class="due-pill ${dl.cls}">${dl.text}</span>`:''}
-          ${webinarName?`<span class="due-pill" style="background:#EEF4FB;color:#185FA5;border:1px solid #B5D4F4;cursor:pointer" onclick="event.stopPropagation();${openCmd}">📋 ${webinarName}</span>`:''}
-          ${t.cat==='webinar'&&!t.webinarId?`<span class="due-pill due-future" style="cursor:pointer;border:1px dashed #ccc" onclick="event.stopPropagation();openWebinarPicker('${t.id}')">+ Link to webinar</span>`:''}
-          ${t.reminder?`<span class="reminder-pill set">⏰ ${t.reminder.time} ${t.reminder.date!==todayStr()?fmtDate(t.reminder.date):''}</span>`:''}
+    <div class="info-grid">
+      <div class="panel">
+        <div class="panel-title">Overview</div>
+        <div class="kv-grid">
+          <div class="kv-item"><div class="kv-label">Owner</div><div class="kv-val">${esc(w.owner||'—')}</div></div>
+          <div class="kv-item"><div class="kv-label">Status</div><div class="kv-val">${esc(w.status)}</div></div>
+          <div class="kv-item"><div class="kv-label">Operations</div><div class="kv-val">${ops.done}/${ops.total} · ${ops.pct}%</div></div>
+          <div class="kv-item"><div class="kv-label">Slides</div><div class="kv-val">${slides.done}/${slides.total} · ${slides.pct}%</div></div>
+        </div>
+        <div class="overall-bar">
+          <div class="bar"><div class="fill" style="width:${overall.pct}%"></div></div>
+          <div class="bar-label">${overall.done} of ${overall.total} total tasks complete · ${overall.pct}%</div>
         </div>
       </div>
-      <div class="task-right">
-        <button class="icon-btn primary" onclick="event.stopPropagation();openModal('${t.id}')">⏰ Remind</button>
-        <button class="icon-btn" onclick="event.stopPropagation();removeTask('${t.id}')">Remove</button>
+      <div class="panel">
+        <div class="panel-title">Next task</div>
+        <div class="next-task-box">
+          <div class="nt-label">${esc(nxt.label)} · ${esc(nxt.phase)}</div>
+          <div class="nt-task">${esc(nxt.task)}</div>
+        </div>
+        ${w.notes?`<div style="margin-top:12px;font-size:13px;color:var(--muted);line-height:1.5">${esc(w.notes)}</div>`:''}
       </div>
     </div>
-    <div class="task-steps ${isExpanded?'open':''}" id="steps-${t.id}">
-      <div class="steps-title">Next steps</div>
-      ${steps.map((s,i)=>`
-        <div class="step-item">
-          <div class="step-num">${i+1}</div>
-          <div>
-            <div class="step-text">${s.s}</div>
-            ${s.link?`<button class="step-link" onclick="${openCmd}">Open Webinar Dashboard →</button>`:''}
-          </div>
-        </div>`).join('')}
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('ops',this)">Operations workflow</button>
+      <button class="tab" onclick="showTab('slides',this)">Slides workflow</button>
+      <button class="tab" onclick="showTab('progress',this)">Progress</button>
+      <button class="tab" onclick="showTab('notes',this)">Notes</button>
     </div>
-  </div>`;
-}
 
-function toggleExpand(id){
-  expandedTask=expandedTask===id?null:id;
-  renderAll();
-}
-function toggleDone(id){
-  const t=tasks.find(t=>t.id===id);
-  if(t){t.done=!t.done;save();renderAll();}
-}
-function removeTask(id){
-  tasks=tasks.filter(t=>t.id!==id);save();renderAll();
-}
-function toggleDoneVisible(){
-  showDone=!showDone;renderToday();
-}
-
-function attachTaskListeners(){}
-
-// ═══════════════════════════════════════════════════════
-// ADD TASK PANELS
-// ═══════════════════════════════════════════════════════
-function renderAddPanel(src){
-  const isFuture=src==='upcoming';
-  return `
-  <div class="add-panel">
-    <div class="add-panel-title">✦ Add a task ${isFuture?'— Claude will suggest the category':'— type to auto-detect category'}</div>
-    <div class="field-group" style="margin-bottom:10px">
-      <label class="field-label">Task name</label>
-      <input class="field-input wide" type="text" id="add-name-${src}" placeholder="${isFuture?'e.g. Prepare webinar slides for 15 April event...':'e.g. Review aged care article before publishing...'}" oninput="onNameInput('${src}')">
-      <div id="smart-hint-${src}" class="smart-hint"></div>
+    <div id="tab-ops" class="tabpanel active">
+      <div class="controls">
+        <button class="btn btn-sm" onclick="expandAll('ops')">Expand all</button>
+        <button class="btn btn-sm" onclick="collapseAll('ops')">Collapse all</button>
+        <button class="btn btn-sm" onclick="resetStream('ops')">Reset ops</button>
+      </div>
+      ${renderOps(w)}
     </div>
-    <div class="add-row2">
-      <div class="field-group">
-        <label class="field-label">Category</label>
-        <select class="field-input" id="add-cat-${src}">
-          ${Object.entries(CAT).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}
-        </select>
+
+    <div id="tab-slides" class="tabpanel">
+      <div class="controls">
+        <button class="btn btn-sm" onclick="expandAll('slides')">Expand all</button>
+        <button class="btn btn-sm" onclick="collapseAll('slides')">Collapse all</button>
+        <button class="btn btn-sm" onclick="resetStream('slides')">Reset slides</button>
       </div>
-      <div class="field-group">
-        <label class="field-label">Due date</label>
-        <input class="field-input" type="date" id="add-date-${src}" value="${isFuture?'':todayStr()}">
+      ${renderSlides(w)}
+    </div>
+
+    <div id="tab-progress" class="tabpanel">
+      <div class="panel" style="margin-bottom:12px">
+        <div class="panel-title">Stage progress</div>
+        <div class="stage-grid">${renderProgressCards(w)}</div>
       </div>
-      <div class="field-group">
-        <label class="field-label">Reminder time</label>
-        <input class="field-input" type="time" id="add-time-${src}">
-      </div>
-      <div class="field-group" style="justify-content:flex-end">
-        <label class="field-label">&nbsp;</label>
-        <button class="add-submit" onclick="addTask('${src}')">Add task</button>
+      <div class="panel">
+        <div class="panel-title">High-risk slide checks</div>
+        ${renderHRC(w)}
       </div>
     </div>
-  </div>`;
-}
 
-function renderBacklogAddPanel(){
-  return `
-  <div class="add-panel" style="margin-bottom:16px">
-    <div class="add-panel-title">✦ Add to backlog</div>
-    <div class="field-group" style="margin-bottom:10px">
-      <label class="field-label">Task name</label>
-      <input class="field-input wide" type="text" id="add-name-backlog" placeholder="e.g. Upload recording to YouTube..." oninput="onNameInput('backlog')">
-      <div id="smart-hint-backlog" class="smart-hint"></div>
-    </div>
-    <div class="add-row2">
-      <div class="field-group">
-        <label class="field-label">Category</label>
-        <select class="field-input" id="add-cat-backlog">${Object.entries(CAT).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}</select>
+    <div id="tab-notes" class="tabpanel">
+      <div class="panel">
+        <div class="panel-title">Notes</div>
+        <textarea class="notes-area" placeholder="Add reminders, blocked items, speaker notes, follow-ups…" oninput="saveNotes(this.value)">${esc(getState(w.id).notes||'')}</textarea>
       </div>
-      <div class="field-group">
-        <label class="field-label">Column</label>
-        <select class="field-input" id="add-col-backlog">${COL_ORDER.map(c=>`<option value="${c}">${COL_LABELS[c]}</option>`).join('')}</select>
+    </div>`;
+}
+
+// ═══════════ OPS RENDER ═══════════
+function renderOps(w){
+  const st=getState(w.id);
+  return opsPhases.map(ph=>{
+    const vis=ph.sections.flatMap(s=>s.tasks.filter(t=>regionAllows(t,w.region)).map(t=>({s,t})));
+    const total=vis.length,done=vis.filter(x=>st.checks[`ops|${ph.id}|${x.s.name}|${x.t.t}`]).length;
+    const open=!!st.phaseOpen[ph.id];
+    return `<div class="phase">
+      <div class="phase-header" onclick="togglePhase('ops','${ph.id}')">
+        <div class="phase-left"><div class="phase-dot" style="background:${ph.color}"></div><div><div class="phase-name">${esc(ph.name)}</div><div class="phase-timing">${esc(ph.timing)}</div></div></div>
+        <div class="phase-right"><span>${done}/${total} · ${total?Math.round(done/total*100):0}%</span><span class="chev ${open?'open':''}" id="cop-${ph.id}">▼</span></div>
       </div>
-      <div class="field-group" style="justify-content:flex-end">
-        <label class="field-label">&nbsp;</label>
-        <button class="add-submit" id="bl-submit" onclick="addBacklogTask()">Add task</button>
+      <div class="phase-body ${open?'open':''}" id="bop-${ph.id}">
+        ${ph.sections.map(s=>{
+          const tasks=s.tasks.filter(t=>regionAllows(t,w.region));
+          if(!tasks.length)return'';
+          return `<div><div class="section-hdr">${esc(s.name)}</div>${tasks.map(t=>{
+            const key=`ops|${ph.id}|${s.name}|${t.t}`,checked=!!st.checks[key];
+            return `<div class="task-row" onclick="toggle('${key}')">
+              <input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggle('${key}')">
+              <div><div class="task-text ${checked?'done':''}">${esc(t.t)}</div>
+              <div class="tags">${t.jur?`<span class="tag tag-${t.jur.toLowerCase()}">${t.jur.toUpperCase()} only</span>`:''}${t.note?`<span class="tag tag-note" title="${esc(t.note)}">note</span>`:''}</div>
+              </div><div></div></div>`;
+          }).join('')}</div>`;
+        }).join('')}
       </div>
-    </div>
-  </div>`;
+    </div>`;
+  }).join('');
 }
 
-function attachAddListeners(src){
-  const inp=document.getElementById('add-name-'+src);
-  if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter')addTask(src);});
+// ═══════════ SLIDES RENDER ═══════════
+function rc(r){return r==='High'?'tag-high':r==='Medium'?'tag-med':'tag-low';}
+function rl(r){return r==='High'?'HIGH':r==='Medium'?'MED':'LOW';}
+function renderSlides(w){
+  const st=getState(w.id);
+  return slidePhases.map(ph=>{
+    const total=ph.tasks.length,done=ph.tasks.filter(t=>st.checks[`slides|${ph.id}|${t.n}`]).length;
+    const open=!!st.slideOpen[ph.id];
+    return `<div class="phase">
+      <div class="phase-header" onclick="togglePhase('slides','${ph.id}')">
+        <div class="phase-left"><div class="phase-dot" style="background:${ph.color}"></div><div class="phase-name">${esc(ph.name)}</div></div>
+        <div class="phase-right"><span>${done}/${total} · ${Math.round(done/total*100)}%</span><span class="chev ${open?'open':''}" id="csl-${ph.id}">▼</span></div>
+      </div>
+      <div class="phase-body ${open?'open':''}" id="bsl-${ph.id}">
+        ${ph.tasks.map(t=>{
+          const key=`slides|${ph.id}|${t.n}`,checked=!!st.checks[key];
+          return `<div class="task-row" onclick="toggle('${key}')">
+            <input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggle('${key}')">
+            <div><div class="task-text ${checked?'done':''}">${esc(t.t)}</div>
+            <div class="task-detail ${checked?'done':''}">${esc(t.d)}</div>
+            <div class="tags"><span class="tag ${rc(t.r)}">${rl(t.r)}</span></div></div>
+            <div class="task-num">#${t.n}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function onNameInput(src){
-  const val=document.getElementById('add-name-'+src)?.value?.trim();
-  const hint=document.getElementById('smart-hint-'+src);
-  if(!hint)return;
-  if(!val||val.length<5){hint.innerHTML='';hint.className='smart-hint';return;}
-  clearTimeout(typingTimer);
-  hint.innerHTML=`<span class="spinner"></span> Working out category...`;
-  hint.className='smart-hint show';
-  typingTimer=setTimeout(()=>suggestCat(val,src),700);
+function renderProgressCards(w){
+  const st=getState(w.id).checks;
+  const cards=[...opsPhases.map(ph=>{
+    const keys=[];ph.sections.forEach(s=>s.tasks.forEach(t=>{if(regionAllows(t,w.region))keys.push(`ops|${ph.id}|${s.name}|${t.t}`);}));
+    const done=keys.filter(k=>st[k]).length,total=keys.length,pct=total?Math.round(done/total*100):0;
+    return`<div class="stage-card"><h4>${esc(ph.name)}</h4><div class="bar"><div class="fill" style="width:${pct}%;background:${ph.color}"></div></div><div style="font-size:12px;color:var(--muted);margin-top:4px">${done}/${total} · ${pct}%</div></div>`;
+  }),...slidePhases.map(ph=>{
+    const keys=ph.tasks.map(t=>`slides|${ph.id}|${t.n}`);
+    const done=keys.filter(k=>st[k]).length,total=keys.length,pct=Math.round(done/total*100);
+    return`<div class="stage-card"><h4>Slides: ${esc(ph.name)}</h4><div class="bar"><div class="fill" style="width:${pct}%;background:${ph.color}"></div></div><div style="font-size:12px;color:var(--muted);margin-top:4px">${done}/${total} · ${pct}%</div></div>`;
+  })];
+  return cards.join('');
 }
 
-async function suggestCat(text,src){
-  const hint=document.getElementById('smart-hint-'+src);
-  if(!hint)return;
-  const prompt=`You are a task classifier for a legal marketing coordinator at LegalVision.
-Classify this task into EXACTLY one key. Reply with ONLY the key:
-content — article editing, WordPress, In Short, FAQs, plain English, case studies
-social — LinkedIn, Facebook, Buffer, newsletters, carousels, social media
-webinar — anything related to webinars: Zoom Events, Marketo, UTMs, recordings, YouTube, Spotify, Jira, slides, Gamma, Google Slides, Bitly, QR codes, talking points, battle cards, practice runs, webinar setup
-ads — paid advertising, advertorials, external ads, LinkedIn paid ads, partner promotions
-adhoc — random, one-off, admin, meetings, misc
-Task: "${text}"`;
+function renderHRC(w){
+  const st=getState(w.id);
+  return highRiskChecks.map((item,i)=>{
+    const key=`hrc|${i}`,checked=!!st.hrc[key];
+    return`<div class="task-row" onclick="toggleHRC('${key}')">
+      <input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleHRC('${key}')">
+      <div><div class="task-text ${checked?'done':''}">${esc(item.c)}</div><div class="task-detail">${esc(item.w)}</div></div>
+      <div></div></div>`;
+  }).join('');
+}
+
+// ═══════════ INTERACTIONS ═══════════
+function toggle(key){const st=getState(activeId);st.checks[key]=!st.checks[key];persist();renderSidebar();renderMain();}
+function toggleHRC(key){const st=getState(activeId);st.hrc[key]=!st.hrc[key];persist();renderMain();}
+function togglePhase(stream,id){
+  const st=getState(activeId);
+  const b=stream==='ops'?st.phaseOpen:st.slideOpen;
+  b[id]=!b[id];persist();renderMain();
+}
+function expandAll(s){const st=getState(activeId);(s==='ops'?opsPhases:slidePhases).forEach(ph=>(s==='ops'?st.phaseOpen:st.slideOpen)[ph.id]=true);persist();renderMain();}
+function collapseAll(s){const st=getState(activeId);(s==='ops'?opsPhases:slidePhases).forEach(ph=>(s==='ops'?st.phaseOpen:st.slideOpen)[ph.id]=false);persist();renderMain();}
+function resetStream(s){if(!confirm(`Reset ${s} checklist for this webinar?`))return;const st=getState(activeId);Object.keys(st.checks).forEach(k=>{if(k.startsWith(s==='ops'?'ops|':'slides|'))st.checks[k]=false;});if(s==='slides')Object.keys(st.hrc).forEach(k=>st.hrc[k]=false);persist();renderSidebar();renderMain();}
+function saveNotes(v){const st=getState(activeId);st.notes=v;persist();}
+function showTab(name,el){document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');el.classList.add('active');}
+
+// ═══════════ WEBINAR CRUD ═══════════
+function openCreate(){editingId=null;document.getElementById('modalTitle').textContent='New webinar';['fName','fSpeaker','fNotes'].forEach(id=>document.getElementById(id).value='');document.getElementById('fDate').value='';document.getElementById('fStatus').value='Planning';document.getElementById('fRegion').value='AU';document.getElementById('fOwner').value='Sambridi';document.getElementById('webinarModal').showModal();}
+function openEdit(){const w=activeW();if(!w)return;editingId=w.id;document.getElementById('modalTitle').textContent='Edit webinar';document.getElementById('fName').value=w.name||'';document.getElementById('fDate').value=w.date||'';document.getElementById('fStatus').value=w.status||'Planning';document.getElementById('fRegion').value=w.region||'AU';document.getElementById('fSpeaker').value=w.speaker||'';document.getElementById('fOwner').value=w.owner||'Sambridi';document.getElementById('fNotes').value=w.notes||'';document.getElementById('webinarModal').showModal();}
+function closeWebinarModal(){document.getElementById('webinarModal').close();}
+function saveWebinar(){
+  const name=document.getElementById('fName').value.trim();if(!name){alert('Add a webinar name.');return;}
+  const payload={name,date:document.getElementById('fDate').value,status:document.getElementById('fStatus').value,region:document.getElementById('fRegion').value,speaker:document.getElementById('fSpeaker').value.trim(),owner:document.getElementById('fOwner').value.trim(),notes:document.getElementById('fNotes').value.trim()};
+  if(editingId){const i=webinars.findIndex(w=>w.id===editingId);webinars[i]={...webinars[i],...payload};}
+  else{const item={id:crypto.randomUUID(),...payload};webinars.push(item);activeId=item.id;}
+  persist();closeWebinarModal();renderSidebar();renderMain();
+}
+function duplicateW(){const w=activeW();if(!w)return;const copy={...w,id:crypto.randomUUID(),name:w.name+' (Copy)',status:'Planning'};webinars.push(copy);wState[copy.id]=JSON.parse(JSON.stringify(getState(w.id)));activeId=copy.id;persist();renderSidebar();renderMain();}
+function deleteW(){const w=activeW();if(!w)return;if(!confirm(`Delete "${w.name}"?`))return;webinars=webinars.filter(x=>x.id!==w.id);delete wState[w.id];activeId=webinars[0]?.id||null;persist();renderSidebar();renderMain();}
+
+// ═══════════ EXPORT / IMPORT ═══════════
+function exportData(){const blob=new Blob([JSON.stringify({webinars,wState},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='webinar-dashboard-backup.json';a.click();URL.revokeObjectURL(a.href);}
+function importData(e){const file=e.target.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.webinars)throw new Error();webinars=d.webinars;wState=d.wState||{};activeId=webinars[0]?.id||null;persist();renderSidebar();renderMain();}catch{alert('Could not import that file.');}finally{e.target.value='';}};r.readAsText(file);}
+
+
+// ═══════════ PHASE DATA ═══════════
+const opsPhases=[
+  {id:"p1",name:"Initial setup",timing:"3–4 weeks before",color:"#534AB7",sections:[
+    {name:"Zoom Events",tasks:[
+      {t:"Log in to Zoom Events (laini.bennett@legalvision.com.au)"},
+      {t:"Download speaker headshots from Google Drive"},
+      {t:"In Events menu → go to Past events → find event from same region",note:"Match region by timezone: AEST=AU, GMT=UK, NZST=NZ"},
+      {t:"Click 3 dots → Duplicate"},
+      {t:"In duplication settings: untick Event Detail page under Registration and Join"},
+      {t:"Click Duplicate Event"},
+      {t:"Set event name — copy exactly from marketing brief"},
+      {t:"Set date and time (date format is MM/DD not DD/MM)"},
+      {t:"Change timezone to Auckland/Wellington",jur:"nz"},
+      {t:"Change timezone to London",jur:"uk"},
+      {t:"Click Save and continue"},
+    ]},
+    {name:"Zoom — event configuration",tasks:[
+      {t:"Event Configuration → Main Event Image → select zoom-webinar-illustration"},
+      {t:"Check Contact Email is events@legalvision.com.au",jur:"au"},
+      {t:"Check Contact Email is events@legalvision.co.uk",jur:"uk"},
+      {t:"Check Contact Email is events@legalvision.co.nz",jur:"nz"},
+      {t:"Check Hosted by field reads LegalVision"},
+      {t:"Save event configuration"},
+    ]},
+    {name:"Zoom — registration settings",tasks:[
+      {t:"Registration and Join → Links & Event Access → tick Registration required"},
+      {t:"Set authentication dropdown to Bypass authentication"},
+      {t:"Click Customize features → turn off Geo-blocking and Security questions → Save"},
+      {t:"Custom host message: confirm consent text references correct Privacy Policy URL",note:"AU: legalvision.com.au/privacy-policy | UK: legalvision.co.uk/privacy-notice | NZ: legalvision.co.nz/privacy-policy"},
+      {t:"Ensure Require acceptance to register is ticked"},
+      {t:"Marketing Consent → tick opt-in for external registrants",jur:"uk"},
+      {t:"Confirm Privacy Policy link is correct for region"},
+    ]},
+    {name:"Zoom — lobby and session",tasks:[
+      {t:"Event Experience → Lobby → confirm zoom-webinar-illustration is set → Save"},
+      {t:"Lobby Controls → set open date/time to same day, 15 min before start (e.g. 10:45am for 11am)"},
+      {t:"Event Experience → Meeting & Webinar → confirm webinar options match template screenshot"},
+      {t:"Enable Allow cloud recording"},
+      {t:"Enable Automatically start recording when session starts"},
+      {t:"Waiting Room → Customize → update message: Thank you for joining us. The webinar will commence shortly."},
+      {t:"Set waiting room image to Event image"},
+      {t:"Event Content → Session → confirm session type is Webinar and type is Live"},
+    ]},
+    {name:"Zoom — speakers and branding",tasks:[
+      {t:"Event Content → Speakers → Add speaker for each host (name, email, photo, LV Law logo, title, bio from marketing brief)"},
+      {t:"Delete speakers carried over from duplicated event"},
+      {t:"Untick Alternative host from speakers list"},
+      {t:"Add alternative hosts: Emily Wang, Laini Bennett, Frances Timog, Sambridi Shakya + MC email"},
+      {t:"Polls and Quizzes → confirm Poll Question: Legal Needs is present"},
+      {t:"In-session branding → confirm session wallpaper is set"},
+      {t:"Name tag design → use LV name template → create name tags for each speaker (no titles)"},
+      {t:"Speaker Branding → Customize for this session → assign LV digital background to LV speakers"},
+    ]},
+    {name:"Zoom — communications",tasks:[
+      {t:"Communication → Emails → Pre-registration confirmation → update Subject to: You are registered for [WEBINAR NAME]"},
+      {t:"Update webinar name/header in email body"},
+      {t:"Style → Email: Background colour FFFFFF, Body colour F5F5F5"},
+      {t:"Style → Text: Primary 323539, Secondary 6E7680 → Save"},
+      {t:"Deactivate: Event invitation, Interpreter invitation, Free ticket confirmation"},
+      {t:"Deactivate post-event emails: Thank you for attending, Sorry we missed you, Recordings are available"},
+      {t:"Notifications: only Event canceled (Free) should be enabled"},
+      {t:"Event reminders: confirm 1 hour before and 1 day before are active"},
+      {t:"Add AirPods prize draw text to reminder email footer"},
+    ]},
+    {name:"Zoom — publish",tasks:[
+      {t:"Double-check all details including lobby open time"},
+      {t:"Switch off Showcase this event on the hub profile page"},
+      {t:"Publish the event"},
+      {t:"Confirm event appears in Upcoming list"},
+      {t:"Copy Zoom Events overview URL into the Jira ticket Zoom Events field"},
+    ]},
+  ]},
+  {id:"p2",name:"Marketo setup",timing:"3–4 weeks before",color:"#185FA5",sections:[
+    {name:"Create Marketo program",tasks:[
+      {t:"Log in to Marketo"},
+      {t:"AU SMB: clone webinar template → save in 2026 AU Events and Webinars folder",jur:"au"},
+      {t:"AU Enterprise: clone enterprise webinar template → save in correct folder",jur:"au"},
+      {t:"NZ: clone webinar template → save in 2026 NZ Events and Webinars folder",jur:"nz"},
+      {t:"UK: clone webinar template → save in 2026 UK Events and Webinars folder",jur:"uk"},
+      {t:"Naming convention: [JUR] WBN-YYMMDD-Webinar Name"},
+      {t:"Clone to: A Campaign Folder (not a workspace)"},
+    ]},
+    {name:"Integrate Zoom with Marketo",tasks:[
+      {t:"Open the Zoom Event → click Integrations"},
+      {t:"Click Configure on the Marketo tile"},
+      {t:"Choose connection: Marketo - Zoom Events 270525"},
+      {t:"Choose program to sync: Use your own program → paste new Marketo program name exactly"},
+      {t:"Click Save"},
+    ]},
+    {name:"Tokens and setup",tasks:[
+      {t:"Setup → update Practice Area tag from dropdown"},
+      {t:"Add Period Costs tag: cost = $0, month = webinar month"},
+      {t:"Enterprise/IHC only: add Buyer Persona = Enterprise",note:"Enterprise/IHC webinars only"},
+      {t:"Copy WBN token template → populate column E using marketing brief"},
+      {t:"Use Habitat tool → Marketing → Marketo program tokens to update tokens"},
+      {t:"Check My Tokens are populated correctly (watch for symbols/spaces)"},
+      {t:"Never edit Inherited tokens"},
+    ]},
+    {name:"Landing pages",tasks:[
+      {t:"Identify correct LP template: 1, 2, or 3 speakers (with or without partner logos)"},
+      {t:"Locate Thank You page under Local Assets → Landing Pages"},
+      {t:"TY page: URL tools → rename to webinar-name-MktoTY → discard old URL"},
+      {t:"Create iPad mockup: screenshot resource cover → Mockuuups Studio → export Small"},
+      {t:"Add padding using Canva template → export under 200KB transparent PNG"},
+      {t:"Upload mockup to Design Studio → Ebook Photos (use dashes not spaces)"},
+      {t:"Replace iPad mockup on TY page"},
+      {t:"Registration form: confirm correct form with hidden UTM fields (LV pages)"},
+      {t:"Set Follow-up Type: Landing Page → Follow-up Page: TY page"},
+      {t:"Update URL settings: delete auto-generated URL, add full webinar-name slug"},
+      {t:"Preview draft to confirm all tokens populated correctly"},
+      {t:"Landing page actions → Approve and close"},
+      {t:"Copy final URL into the MKG webinar ticket"},
+      {t:"Partner pages: URL format = event-name-partner-name",note:"Only for events with partner landing pages"},
+    ]},
+    {name:"Smart campaigns",tasks:[
+      {t:"Update smart list: add relevant LPs once approved"},
+      {t:"Activate 03-Process Registrations (IM) - Partner #1 (if applicable)"},
+      {t:"Activate 04-Process Registrations (IM) - Partner #2 (if applicable)"},
+      {t:"05-Process Registrations: add form name and relevant LP web pages → activate"},
+      {t:"06-Update Attendance PMCF: confirm program name, status filters, and flow values Y/N → activate"},
+      {t:"Program Status campaigns: complete date filters → activate each"},
+    ]},
+    {name:"UTMs and LV Events page",tasks:[
+      {t:"Open UTM Master Sheet → Tool (add utms to webinar) tab → generate UTMs"},
+      {t:"Paste UTM block into Events Board / Webinar ticket"},
+      {t:"LV website: Dashboard → Events → Duplicate and Open an existing event"},
+      {t:"Update event name, summary, attendance mode = Online"},
+      {t:"Display on articles = Yes, Registration Text = Register Now"},
+      {t:"Registration Link: use website organic UTM link from UTM sheet"},
+      {t:"Event Status = Scheduled, set correct start and end date/time → Save"},
+    ]},
+  ]},
+  {id:"p3",name:"Slides preparation",timing:"2 weeks before",color:"#3B6D11",sections:[
+    {name:"Bitly — QR code and short link",tasks:[
+      {t:"Log in to Bitly (anthony.lieu@legalvision.com.au)"},
+      {t:"Search publication name — if QR code and short link already exist, use those"},
+      {t:"If not: Create new → Link → add landing page URL, publication name, custom slug"},
+      {t:"Copy short link"},
+      {t:"QR Code → three dots → Download PNG"},
+    ]},
+    {name:"Google Slides",tasks:[
+      {t:"Open Google Drive → Marketing → Webinars or Events → Year → Country → Webinar Name"},
+      {t:"Open correct regional template (AU/NZ/UK)"},
+      {t:"Title slide: paste webinar name (size 26 for second line if long)"},
+      {t:"Title slide: add publication name, short link, and QR code to Download our... box"},
+      {t:"Speakers slide: find round headshots → Google Drive → Team Photos → Round Faces"},
+      {t:"If no round photo: use LunaPic to crop → save as First-Name-Last-Name-round → add to Round Faces"},
+      {t:"Add round photos, names, and titles (bold speaker names)"},
+      {t:"Agenda slide: copy topics from Talking Points → final item always Q&A (max 10 items)"},
+      {t:"Publication/Resource slide: add name, QR code, and screenshot/cover"},
+      {t:"Upcoming Webinar slide: add next related webinar from Webinar + Events Calendar"},
+      {t:"Q&A slide: add publication name, short link, and QR code to Download Now box"},
+      {t:"Add Request a free consultation footer to talking points slides"},
+      {t:"Confirm style: Font Jost, Headings size 26 (#ff6a13), Subheadings 13/16, Body 11/13 (#003b49)"},
+    ]},
+    {name:"Finalise and send",tasks:[
+      {t:"Add NEXT SLIDE prompts to Talking Points doc Tab 1"},
+      {t:"Add screenshots of key slides to Talking Points doc: Speakers, Agenda, Publication, Upcoming Webinar, Q&A"},
+      {t:"Copy Battle Card template into webinar folder → fill out using AI prompt"},
+      {t:"Send webinar folder link to Emily to review"},
+      {t:"Once approved: email slides and talking points to speakers and MC"},
+      {t:"Remind speakers: 25 min max for core content, speak slowly and clearly"},
+    ]},
+  ]},
+  {id:"p4",name:"Practice run",timing:"3–7 days before",color:"#BA7517",sections:[
+    {name:"Set up practice run",tasks:[
+      {t:"Go to live event in Hub → 3 dots → Duplicate"},
+      {t:"Remove Duplicate from title → replace with PRACTICE RUN + webinar name"},
+      {t:"Set practice run date and time (remember UK/NZ time zones, not AU)"},
+      {t:"Save and continue"},
+      {t:"Event Content → Session → confirm correct alternative hosts are listed"},
+      {t:"Event Experience → Lobby → set start time to 15 minutes before practice run"},
+      {t:"Publish: turn off Publish in hub → then publish practice run"},
+      {t:"Register immediately → confirm registration page and required questions are correct"},
+    ]},
+  ]},
+  {id:"p5",name:"Day of webinar",timing:"Day of event",color:"#993C1D",sections:[
+    {name:"Pre-webinar checks",tasks:[
+      {t:"Confirm lobby open time is 15 minutes before start"},
+      {t:"Confirm cloud recording is set to start automatically"},
+      {t:"Confirm waiting room message and image are correct"},
+      {t:"Confirm all speakers have accepted their Zoom invitations"},
+      {t:"Confirm Poll Question: Legal Needs is loaded in session"},
+    ]},
+  ]},
+  {id:"p6",name:"Post-webinar",timing:"Within 48 hours",color:"#0F6E56",sections:[
+    {name:"YouTube upload",tasks:[
+      {t:"Log in to Zoom.us → Recordings & Transcripts → select webinar"},
+      {t:"Click Shared screen with speaker view → Download"},
+      {t:"Optional: trim start/end → confirm trim → wait for processing → re-download"},
+      {t:"Upload video to YouTube"},
+      {t:"Open Canva thumbnail template → replace speaker images (square/rectangle, remove background)"},
+      {t:"Paste webinar name + description into ChatGPT thread → update Canva with suggested thumbnail text"},
+      {t:"Download thumbnail as PNG (1280x720, no transparent background)"},
+      {t:"Upload thumbnail to YouTube"},
+      {t:"YouTube title format: [Webinar name incorporating Australian/NZ/UK] | LegalVision"},
+      {t:"Add description from marketing brief (remove highlighted intro, change to present tense, remove CPD + Q&A)"},
+      {t:"Add standard description header: YouTube subscribe link + newsletter links + legal health check links"},
+      {t:"Add standard description footer: Stay Connected block + social links + legal disclaimer"},
+      {t:"Add End Screen: specific relevant video (rectangle left) + subscribe button (circle right)"},
+      {t:"Save video"},
+      {t:"Embed slides and YouTube link in Published Content + Resources Index (Webinars Index tab) — add hosts"},
+    ]},
+    {name:"Spotify upload",tasks:[
+      {t:"Check: only upload if webinar had 200+ registrations",note:"Skip this section if under 200 registrations"},
+      {t:"Log in to Spotify with work email → navigate to The Legal Brief"},
+      {t:"+ New episode → Select a file → upload same Zoom recording"},
+      {t:"Title format: [Webinar name incorporating Australian/NZ/UK] | LegalVision"},
+      {t:"Add description from marketing brief (same edits as YouTube) + speaker bio"},
+      {t:"Add Spotify footer: Stay Connected block + podcast subscribe link + social links + legal disclaimer"},
+      {t:"Upload same Canva thumbnail"},
+      {t:"Click Next → Schedule → Publish date: Now → Publish"},
+      {t:"Add Spotify episode link to webinar Jira ticket"},
+    ]},
+  ]},
+];
+
+const slidePhases=[
+  {id:"s1",name:"Setup",color:"#534AB7",tasks:[
+    {n:1,t:"Locate webinar folder",d:"Google Drive → Marketing → Webinar or Events → Year → Country → Webinar Name",r:"Medium"},
+    {n:2,t:"Open key documents",d:"Open Talking Points doc, Webinar Instructions, Slide template",r:"Medium"},
+    {n:3,t:"Identify publication resource",d:"Find publication name in Webinar Calendar or Marketing Brief",r:"Low"},
+    {n:4,t:"Check if Bitly link exists",d:"Search Bitly for existing QR code and short link before creating a new one",r:"High"},
+    {n:5,t:"Create Bitly link if missing",d:"Create short link and generate QR code PNG",r:"High"},
+  ]},
+  {id:"s2",name:"Gamma creation",color:"#185FA5",tasks:[
+    {n:6,t:"Create new tab in Talking Points",d:"Copy only the talking points table to a new tab",r:"Medium"},
+    {n:7,t:"Export talking points PDF",d:"Download the talking points table tab as a PDF",r:"Medium"},
+    {n:8,t:"Upload to Gamma",d:"Gamma → Create new AI → Import file → Upload PDF",r:"Medium"},
+    {n:9,t:"Check Gamma settings",d:"Text = Condense | Output language = English UK | Format = 16:9",r:"High"},
+    {n:10,t:"Add instruction preventing AI hallucinations",d:"Tell Gamma: Only use text provided in talking points",r:"High"},
+    {n:11,t:"Generate slides",d:"Generate presentation from talking points",r:"Low"},
+    {n:12,t:"Review missing content",d:"Ensure Gamma didn't delete talking points sections",r:"High"},
+  ]},
+  {id:"s3",name:"Google Slides formatting",color:"#3B6D11",tasks:[
+    {n:13,t:"Export slides",d:"Gamma → Share → Export → Google Slides",r:"Low"},
+    {n:14,t:"Copy slides into LV template",d:"Paste slides into official LegalVision template",r:"Medium"},
+    {n:15,t:"Check branding formatting",d:"Font Jost, correct colours, headings formatting",r:"High"},
+    {n:16,t:"Fix visuals or icons",d:"Replace AI visuals that exported incorrectly",r:"Medium"},
+  ]},
+  {id:"s4",name:"Mandatory slides",color:"#993C1D",tasks:[
+    {n:17,t:"Create Title Slide",d:"Add webinar title + publication + QR code",r:"High"},
+    {n:18,t:"Create Speakers Slide",d:"Add round photos, bold speaker names",r:"Medium"},
+    {n:19,t:"Create Agenda Slide",d:"Use Talking Points Topic column — last item always Q&A (max 10 items)",r:"Medium"},
+    {n:20,t:"Create Publication Slide",d:"Add publication screenshot + QR code",r:"High"},
+    {n:21,t:"Create Upcoming Webinar Slide",d:"Add related upcoming webinar from Webinar + Events Calendar",r:"Low"},
+    {n:22,t:"Create Q&A Slide",d:"Include download link + QR code in Download Now box",r:"High"},
+  ]},
+  {id:"s5",name:"Content review",color:"#BA7517",tasks:[
+    {n:23,t:"Check missing content",d:"Ensure Gamma did not remove talking point content",r:"High"},
+    {n:24,t:"Check spelling — UK English",d:"Confirm language is English (UK) throughout",r:"High"},
+    {n:25,t:"Fix orphan words",d:"Avoid single words sitting alone on a line",r:"Low"},
+    {n:26,t:"Check formatting consistency",d:"Font sizes, colours, alignment consistent across all slides",r:"Medium"},
+  ]},
+  {id:"s6",name:"Talking Points updates",color:"#0F6E56",tasks:[
+    {n:27,t:"Add NEXT SLIDE prompts",d:"Insert NEXT SLIDE markers in Talking Points doc Tab 1 so speakers know when to advance",r:"High"},
+    {n:28,t:"Insert slide screenshots",d:"Add screenshots of Speakers, Agenda, Publication, Upcoming Webinar, Q&A slides into Talking Points doc",r:"High"},
+  ]},
+  {id:"s7",name:"Final tasks",color:"#534AB7",tasks:[
+    {n:29,t:"Create battle card",d:"Copy Battle Card template into webinar folder → fill out using AI prompt",r:"Medium"},
+    {n:30,t:"Send battle card to Emily",d:"Tag Emily in Jira ticket or share webinar folder link for review",r:"High"},
+    {n:31,t:"Final deck review",d:"Check all links, QR codes, and formatting before sending",r:"High"},
+    {n:32,t:"Send slides to speakers",d:"Email slides + talking points to speakers and MC using standard email template",r:"High"},
+  ]},
+];
+
+const highRiskChecks=[
+  {c:"QR code added correctly",w:"Slides must include publication QR code"},
+  {c:"Bitly link verified",w:"Incorrect links break webinar resources"},
+  {c:"English UK language set",w:"Slides must follow British English"},
+  {c:"Mandatory slides included",w:"Missing slides cause review feedback"},
+  {c:"Talking points not removed by Gamma",w:"Gamma sometimes deletes sections"},
+  {c:"NEXT SLIDE prompts added",w:"Speakers rely on this for pacing"},
+  {c:"Screenshots added to Talking Points",w:"Speakers use these for reference"},
+  {c:"Consultation footer added",w:"Required LegalVision CTA"},
+  {c:"Fonts and colours correct",w:"Brand consistency requirement"},
+];
+
+// ═══════════ INIT ═══════════
+// Check if tracker sent a specific webinar to open
+(function(){
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:10,messages:[{role:'user',content:prompt}]})});
-    const d=await r.json();
-    const raw=(d?.content?.[0]?.text||'').trim().toLowerCase().replace(/[^a-z]/g,'');
-    const valid=Object.keys(CAT);
-    const cat=valid.includes(raw)?raw:'adhoc';
-    const sel=document.getElementById('add-cat-'+src);
-    if(sel)sel.value=cat;
-    if(hint){hint.innerHTML=`✓ Suggested: <strong>${CAT[cat].label}</strong> — change in dropdown if needed`;hint.className='smart-hint show';hint.style.color='#0F6E56';}
-  }catch(e){if(hint){hint.innerHTML='Could not auto-detect — select category manually';hint.style.color='#aaa';}}
-}
-
-function addTask(src){
-  const name=document.getElementById('add-name-'+src)?.value?.trim();
-  if(!name)return;
-  const cat=document.getElementById('add-cat-'+src)?.value||'adhoc';
-  const dueDate=document.getElementById('add-date-'+src)?.value||todayStr();
-  const time=document.getElementById('add-time-'+src)?.value||null;
-  const id='t'+Date.now();
-  const task={id,name,cat,dueDate,done:false,source:src==='today'?'today':'scheduled',reminder:null,webinarId:null};
-  tasks.push(task);
-  save();
-  if(time){task.reminder={date:dueDate,time};save();createCalReminderDirect(task);}
-  // Clear inputs
-  document.getElementById('add-name-'+src).value='';
-  if(document.getElementById('add-date-'+src)&&src!=='upcoming')document.getElementById('add-date-'+src).value=todayStr();
-  const hint=document.getElementById('smart-hint-'+src);
-  if(hint){hint.innerHTML='';hint.className='smart-hint';}
-  // If webinar category, show picker
-  if(cat==='webinar'){openWebinarPicker(id);}
-  else{renderAll();}
-}
-
-function addBacklogTask(){
-  const name=document.getElementById('add-name-backlog')?.value?.trim();
-  if(!name)return;
-  const cat=document.getElementById('add-cat-backlog')?.value||'adhoc';
-  const col=document.getElementById('add-col-backlog')?.value||'todo';
-  backlog.push({id:'b'+Date.now(),name,cat,col});
-  save();renderAll();
-}
-
-// ═══════════════════════════════════════════════════════
-// BACKLOG ACTIONS
-// ═══════════════════════════════════════════════════════
-function moveBacklog(id,col){const t=backlog.find(t=>t.id===id);if(t){t.col=col;save();renderAll();}}
-function blToToday(id){
-  const t=backlog.find(t=>t.id===id);if(!t)return;
-  tasks.push({id:'t'+Date.now(),name:t.name,cat:t.cat,dueDate:todayStr(),done:false,source:'today',reminder:null});
-  backlog=backlog.filter(x=>x.id!==id);
-  save();renderAll();
-}
-function deleteBacklog(id){backlog=backlog.filter(t=>t.id!==id);save();renderAll();}
-
-// ═══════════════════════════════════════════════════════
-// CALENDAR REMINDERS
-// ═══════════════════════════════════════════════════════
-function openModal(id){
-  const t=tasks.find(t=>t.id===id);if(!t)return;
-  modalTaskId=id;
-  document.getElementById('m-task').value=t.name;
-  document.getElementById('m-date').value=t.reminder?.date||t.dueDate||todayStr();
-  document.getElementById('m-time').value=t.reminder?.time||'09:00';
-  document.getElementById('m-note').value='';
-  document.getElementById('m-status').textContent='';
-  document.getElementById('m-save').disabled=false;
-  document.getElementById('m-save').textContent='Create calendar reminder';
-  document.getElementById('modal-overlay').style.display='flex';
-}
-function closeModal(){document.getElementById('modal-overlay').style.display='none';modalTaskId=null;}
-
-async function createCalendarReminder(){
-  const date=document.getElementById('m-date').value;
-  const time=document.getElementById('m-time').value;
-  const note=document.getElementById('m-note').value.trim();
-  if(!date||!time){document.getElementById('m-status').textContent='Please set a date and time.';return;}
-  const t=tasks.find(t=>t.id===modalTaskId);if(!t)return;
-
-  const btn=document.getElementById('m-save');
-  btn.disabled=true;btn.textContent='Creating...';
-  document.getElementById('m-status').textContent='';
-
-  const success=await createCalReminderDirect(t,date,time,note);
-  if(success){
-    t.reminder={date,time};save();
-    btn.textContent='✓ Reminder created';
-    document.getElementById('m-status').textContent='Check Google Calendar — you\'ll get a pop-up notification at the set time.';
-    renderAll();
-    setTimeout(closeModal,2200);
-  } else {
-    btn.disabled=false;btn.textContent='Create calendar reminder';
-    document.getElementById('m-status').textContent='Could not create — please try again.';
-  }
-}
-
-async function createCalReminderDirect(task,date,time,note){
-  date=date||task.reminder?.date||task.dueDate||todayStr();
-  time=time||task.reminder?.time||'09:00';
-  note=note||'';
-  const catLabel=(CAT[task.cat]||{label:'Task'}).label;
-  const steps=(NEXT_STEPS[task.cat]||NEXT_STEPS.adhoc).slice(0,3).map((s,i)=>`${i+1}. ${s.s}`).join('\n');
-  const desc=`Category: ${catLabel}\n\nFirst steps:\n${steps}${note?'\n\nNote: '+note:''}`;
-  const start=`${date}T${time}:00`;
-  const [h,m]=time.split(':').map(Number);
-  const endH=String(h+(m+30>=60?1:0)).padStart(2,'0');
-  const endM=String((m+30)%60).padStart(2,'0');
-  const end=`${date}T${endH}:${endM}:00`;
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:200,
-        system:`You are a Google Calendar assistant. Use the gcal_create_event tool to create a calendar event with these exact details and respond with just "created".`,
-        messages:[{role:'user',content:`Create a calendar event:
-Title: ⏰ ${task.name}
-Start: ${start} (Australia/Sydney timezone)
-End: ${end} (Australia/Sydney timezone)
-Description: ${desc}
-Reminders: popup 10 minutes before, popup at event time`}],
-        mcp_servers:[{type:'url',url:'https://gcal.mcp.claude.com/mcp',name:'gcal-mcp'}]
-      })
-    });
-    const data=await res.json();
-    return data?.content?.some(c=>c.type==='mcp_tool_use'||c.type==='text');
-  }catch(e){return false;}
-}
-
-// ═══════════════════════════════════════════════════════
-// SIDEBAR UPDATES
-// ═══════════════════════════════════════════════════════
-function updateSidebarBadges(){
-  const td=todayStr();
-  const todayCount=tasks.filter(t=>!t.done&&(t.source==='today'||(t.dueDate&&t.dueDate<=td))).length;
-  const upCount=tasks.filter(t=>!t.done&&t.dueDate&&t.dueDate>td).length;
-  const blCount=backlog.filter(t=>t.col!=='done').length;
-  document.getElementById('nb-today').textContent=todayCount||'';
-  document.getElementById('nb-upcoming').textContent=upCount||'';
-  document.getElementById('nb-backlog').textContent=blCount||'';
-}
-
-function updateChecklistProgress(){
-  const el=document.getElementById('prog-ops');if(!el)return;
-  try{
-    const raw=localStorage.getItem('lv_ops_checklist');if(!raw){el.textContent='—';return;}
-    const state=JSON.parse(raw);const keys=Object.keys(state);
-    if(!keys.length){el.textContent='—';return;}
-    const done=keys.filter(k=>state[k]).length;
-    el.textContent=Math.round(done/keys.length*100)+'%';
-  }catch(e){el.textContent='—';}
-}
-
-// ═══════════════════════════════════════════════════════
-// WEBINAR PICKER
-// ═══════════════════════════════════════════════════════
-let pickerTaskId=null;
-
-function openWebinarPicker(taskId){
-  pickerTaskId=taskId;
-  // Read webinars from the dashboard's localStorage
-  let webinars=[];
-  try{webinars=JSON.parse(localStorage.getItem('lv_webinar_dash_v1')||'[]');}catch(e){}
-  const list=document.getElementById('webinar-picker-list');
-  if(!webinars.length){
-    list.innerHTML='<div style="font-size:13px;color:#aaa;text-align:center;padding:12px">No webinars found in dashboard yet.<br>Open the dashboard and create one first.</div>';
-  } else {
-    list.innerHTML=webinars.map(w=>`
-      <div onclick="linkWebinar('${w.id}')" style="padding:12px 14px;background:#fff;border:1px solid #e8e8e4;border-radius:10px;cursor:pointer;transition:border-color 0.1s" onmouseover="this.style.borderColor='#9990e0'" onmouseout="this.style.borderColor='#e8e8e4'">
-        <div style="font-size:14px;font-weight:600;margin-bottom:3px">${w.name}</div>
-        <div style="font-size:12px;color:#888">${w.date?w.date:''} · ${w.region} · ${w.status}</div>
-      </div>`).join('');
-  }
-  document.getElementById('webinar-picker-overlay').style.display='flex';
-  renderAll();
-}
-
-function linkWebinar(webinarId){
-  const t=tasks.find(t=>t.id===pickerTaskId);
-  if(t){t.webinarId=webinarId;save();}
-  closeWebinarPicker(false);
-}
-
-function closeWebinarPicker(skipLink){
-  document.getElementById('webinar-picker-overlay').style.display='none';
-  pickerTaskId=null;
-  renderAll();
-}
-
-function openCL(type, webinarId){
-  if (webinarId) {
-    localStorage.setItem('lv_active_webinar', JSON.stringify({
-      id: webinarId,
-      ts: Date.now()
-    }));
-  }
-  window.open('webinar.html', '_blank');
-}
-
-setInterval(updateChecklistProgress,5000);
-renderAll();
+    const raw=localStorage.getItem('lv_active_webinar');
+    if(raw){
+      const{id,ts}=JSON.parse(raw);
+      // Only honour if signal is fresh (within 10 seconds)
+      if(id&&Date.now()-ts<10000){
+        const found=webinars.find(w=>w.id===id);
+        if(found)activeId=found.id;
+      }
+      localStorage.removeItem('lv_active_webinar');
+    }
+  }catch(e){}
+})();
+renderSidebar();
+renderMain();
+syncProgress();
 </script>
 </body>
 </html>
