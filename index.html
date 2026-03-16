@@ -898,9 +898,14 @@ function closeWebinarPicker(skipLink){
   renderAll();
 }
 
-function openCL(type,webinarId){
-  if(webinarId){localStorage.setItem('lv_active_webinar','{"id":"'+webinarId+'","ts":'+Date.now()+'}');}
-  window.open('webinar_dashboard.html','_blank');
+function openCL(type, webinarId){
+  if (webinarId) {
+    localStorage.setItem('lv_active_webinar', JSON.stringify({
+      id: webinarId,
+      ts: Date.now()
+    }));
+  }
+  window.open('webinar.html', '_blank');
 }
 
 setInterval(updateChecklistProgress,5000);
